@@ -1,5 +1,6 @@
 import {EntityTypes} from "./EntityTypes.mjs";
 import {Utils} from "./Utils.mjs";
+import {Square} from "./Square.mjs";
 
 export class GameObject {
     x;

@@ -42,8 +42,6 @@ export class Engine {
     onRun(){ }
 
     run = () => {
-
-
         let now = performance.now();
         this.fps = Math.round(1000 / (now - this.start));
         this.start = now;
