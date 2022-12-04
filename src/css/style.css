@@ -1,0 +1,5 @@
+#game-container {
+    border: solid 1px black;
+    display: flex;
+    width: min-content;
+}
