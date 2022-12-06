@@ -1,3 +1,5 @@
+import {Color} from "./Color.mjs";
+
 export class Canvas {
     container;
     width;
@@ -16,7 +18,7 @@ export class Canvas {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
 
-        this.previousColor = 'rgba(130, 131, 124, 1)';
+        this.previousColor = Color.PINK;
         this.ctx.fillStyle = this.previousColor;
 
         this.container.appendChild(this.canvas);
@@ -26,9 +28,17 @@ export class Canvas {
 
     }
 
-    drawSquare(square, color = this.previousColor) {
+    drawSquare(x, y, w, h, color = this.previousColor) {
         this.changeColor(color);
-        this.ctx.fillRect(square.x, square.y, square.w, square.h);
+        this.ctx.fillRect(x, y, w, h);
+    }
+
+    squareBorder(square) {
+        this.ctx.lineWidth = 0.1;
+        this.ctx.strokeStyle = Color.GRAY;
+        this.ctx.beginPath();
+        this.ctx.rect(square.x, square.y, square.w, square.h);
+        this.ctx.stroke();
     }
 
     writeText = (text, x, y, color = this.previousColor) => {
