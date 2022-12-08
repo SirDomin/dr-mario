@@ -52,12 +52,6 @@ export class EventHandler {
         const rect = this.canvas.canvas.getBoundingClientRect();
         let x = e.pageX - rect.x;
         let y = e.pageY - rect.y;
-
-        // this.game.gameObjects.
-        //     filter(object => object.checkCollision(new Point(x, y)))
-        //         .forEach(object => {
-        //             object.onClick();
-        //         })
     }
 
     removeKeyHandler(keyCode) {
