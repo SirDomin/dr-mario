@@ -62,6 +62,9 @@ export class GameObject {
 
     checkCollision(object) {
         this.collisionChecks++;
+        if (object === this) {
+            return false;
+        }
         return (
             this.x + this.width >= object.x &&
             this.x <= object.x + object.width &&

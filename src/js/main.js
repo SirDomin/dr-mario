@@ -11,20 +11,38 @@ const canvas = new Canvas(container, 500, 500);
 const engine = new Engine(canvas);
 
 const fps = new StaticText(100, 10, 100, 10, 'test', Color.GREEN);
-const grid = new GridArea(100, 100, 20, 20, 16, 9);
+const grid = new GridArea(100, 100, 20, 20, 16, 8);
 
 engine.addObject(fps);
 engine.addObject(grid);
 
-console.log(grid);
-new Tile(20, grid, 1, 1, Color.GREEN);
-new Tile(20, grid, 2, 1, Color.RED);
+engine.addKeyHandler(39, () => {
+    grid.movePillRight()
+}, true)
 
-new Tile(20, grid, 4, 1, Color.DARK_BLUE);
-new Tile(20, grid, 5, 1, Color.PINK);
+engine.addKeyHandler(37, () => {
+    grid.movePillLeft()
+}, true)
+
+engine.addKeyHandler(40, () => {
+    grid.rotatePillRight()
+}, true)
+
+engine.addKeyHandler(38, () => {
+    grid.rotatePillLeft()
+}, true)
+
+engine.addKeyHandler(32, () => {
+    grid.placeBlock()
+}, true)
 
 engine.onRun = function() {
-    fps.text = `FPS: ${engine.fps}`;
+    const tiles = grid.tiles.length;
+    fps.text = `FPS: ${engine.fps}, tiles: ${tiles}`;
+
+    if (tiles > 1000) {
+        grid.tiles = [];
+    }
 }
 
 engine.run();
