@@ -41,7 +41,6 @@ export class Tile extends GameObject {
         this.tick++;
         if (this.onGround === false && this.tick % this.tickUpdate === 0) {
             this.tick = 0;
-            let nextX = this.x;
             let nextY = (this.y - this.grid.y) / this.height + this.speed / this.height;
 
             if (nextY <= this.grid.rows) {
@@ -68,7 +67,7 @@ export class Tile extends GameObject {
 
     place() {
         this.steering = false;
-        this.tickUpdate = this.baseTickUpdate / 8;
+        this.tickUpdate = this.baseTickUpdate / 10;
     }
 
     moveDown() {
