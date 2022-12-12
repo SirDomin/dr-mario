@@ -1,4 +1,5 @@
 import {EventHandler} from "./EventHandler.mjs";
+import {Options} from "./Options.mjs";
 
 export class Engine {
     canvas;
@@ -20,19 +21,34 @@ export class Engine {
         this.start = performance.now();
         this.indexesToRemove = [];
         this.pause = false;
+        this.frameTime = 0;
+        this.lastLoop = new Date;
+        this.loop = performance.now();
 
         this.onRunCallback = function(){ }
+    }
+
+    fpsLoop(){
+        this.ticks++;
+
+        const thisFrameTime = (this.loop=new Date) - this.lastLoop;
+        this.frameTime += (thisFrameTime - this.frameTime) / 20;
+        this.lastLoop = this.loop;
+
+        if (this.ticks % 5 === 0) {
+            this.fps = (1000 / this.frameTime).toFixed(0)
+        }
     }
 
     addObject(gameObject) {
         this.gameObjects.push(gameObject);
     }
 
-    addKeyHandler = (keyCode, callback, single = false) => {
+    addKeyHandler(keyCode, callback, single = false) {
         this.eventHandler.addKeyHandler(keyCode, callback, single);
     }
 
-    render = () => {
+    render() {
         this.canvas.clear();
         this.gameObjects.forEach(gameObject => {
             gameObject.render(this.canvas);
@@ -41,11 +57,16 @@ export class Engine {
 
     onRun(){ }
 
-    run = () => {
-        let now = performance.now();
-        this.fps = Math.round(1000 / (now - this.start));
-        this.start = now;
-        this.ticks++;
+    run() {
+        setInterval(() => {
+            requestAnimationFrame(() => {
+                this.animate();
+            });
+        }, 1000 / Options.FRAMERATE)
+    }
+
+    animate() {
+        this.fpsLoop();
 
         if(!this.pause) {
             this.render();
@@ -54,14 +75,13 @@ export class Engine {
         this.handleRemovedObjects();
 
         this.onRun();
-        requestAnimationFrame(this.run);
     }
 
-    destroy = () => {
+    destroy() {
         this.run = function (){}
     }
 
-    updateTick = () => {
+    updateTick() {
         this.gameObjects.forEach(gameObject => {
             gameObject.update();
         });
@@ -71,11 +91,11 @@ export class Engine {
         this.handleOutOfBound();
     }
 
-    update = () => {
+    update() {
 
     }
 
-    getData = () => {
+    getData() {
         return {
             ticks: this.ticks,
             fps: this.fps,
@@ -84,7 +104,7 @@ export class Engine {
         }
     }
 
-    handleOutOfBound = () => {
+    handleOutOfBound() {
         for(let x in this.gameObjects) {
             let object = this.gameObjects[x];
             if (object.x < 0) {
@@ -104,11 +124,11 @@ export class Engine {
         }
     }
 
-    getTicks = () => {
+    getTicks() {
         return this.ticks;
     }
 
-    getObjectAt = (x, y) => {
+    getObjectA(x, y) {
         for(let i in this.gameObjects) {
             if(this.gameObjects[i].checkCollision({
                 x: x,
@@ -121,17 +141,17 @@ export class Engine {
         }
     }
 
-    outOfBound = (object, x) => {
+    outOfBound(object, x) {
         if (object.removeOnOutOfBound) {
             this.removeObject(object.id);
         }
     }
 
-    getObjectById = (id) => {
+    getObjectById(id) {
         return this.gameObjects.filter(object => object.id === id)[0] ?? {};
     }
 
-    inRange = (object1, object2) => {
+    inRange(object1, object2) {
         return (object1.x + object1.width > object2.x && object1.x < object2.x + object2.width);
     }
 
@@ -140,7 +160,7 @@ export class Engine {
         this.indexesToRemove.push(index);
     }
 
-    handleRemovedObjects = () => {
+    handleRemovedObjects() {
         let indexes = new Set(
             this.indexesToRemove.sort((a, b) => {
                 return b-a

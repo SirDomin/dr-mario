@@ -1,6 +1,7 @@
 import {GameObject} from "../GameObject.mjs";
 import {Tile} from "./Tile.mjs";
 import {Color} from "../Color.mjs";
+import {Options} from "../Options.mjs";
 
 export class Pill extends GameObject {
     tiles;
@@ -8,8 +9,8 @@ export class Pill extends GameObject {
     tilesGrounded;
     grounded;
 
-    constructor(grid) {
-        super(grid.x + (2 * 20), (grid.y + 20) * 4, 20, 20);
+    constructor(grid, tileSize) {
+        super(grid.x + (2 * tileSize), (grid.y + tileSize) * 4, tileSize, tileSize);
 
         this.grid = grid;
         this.tilesGrounded = 0;
@@ -62,7 +63,7 @@ export class Pill extends GameObject {
         }
 
         for (let i = 0; i < this.tiles.length; i++) {
-            this.tiles[i].x += 20;
+            this.tiles[i].x += this.grid.tileWidth;
             this.tiles[i].xPos +=1;
         }
 
@@ -84,7 +85,7 @@ export class Pill extends GameObject {
         }
 
         for (let i = 0; i < this.tiles.length; i++) {
-            this.tiles[i].x -= 20;
+            this.tiles[i].x -= this.grid.tileWidth;
             this.tiles[i].xPos -=1;
         }
     }

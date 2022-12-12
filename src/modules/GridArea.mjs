@@ -2,6 +2,7 @@ import {Square} from "./Square.mjs";
 import {Color} from "./Color.mjs";
 import {Pill} from "./objects/Pill.mjs";
 import {EntityTypes} from "./EntityTypes.mjs";
+import {Options} from "./Options.mjs";
 
 export class GridArea {
     x;
@@ -13,14 +14,14 @@ export class GridArea {
     tiles;
     pill;
 
-    constructor(x, y, tileWidth, tileHeight, rows, columns) {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.rows = rows;
-        this.tileWidth = tileWidth;
-        this.tileHeight = tileHeight;
-        this.tickUpdate = 20;
-        this.columns = columns;
+        this.rows = Options.GRID_ROWS;
+        this.tileWidth = Options.TILE_SIZE;
+        this.tileHeight = Options.TILE_SIZE;
+        this.tickUpdate = Options.TILE_UPDATE;
+        this.columns = Options.GRID_COLUMNS;
         this.tiles = [];
         this.pill = null;
 
@@ -96,6 +97,6 @@ export class GridArea {
             this.pill.tiles = [];
         }
 
-        this.pill = new Pill(this);
+        this.pill = new Pill(this, this.tileWidth);
     }
 }
