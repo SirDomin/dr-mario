@@ -33,9 +33,9 @@ export class Canvas {
         this.ctx.fillRect(x, y, w, h);
     }
 
-    squareBorder(square) {
+    squareBorder(square, color = Color.GRAY) {
         this.ctx.lineWidth = 0.1;
-        this.ctx.strokeStyle = Color.GRAY;
+        this.ctx.strokeStyle = color;
         this.ctx.beginPath();
         this.ctx.rect(square.x, square.y, square.w, square.h);
         this.ctx.stroke();

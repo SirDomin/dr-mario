@@ -2,12 +2,14 @@ import {GameObject} from "../GameObject.mjs";
 import {Tile} from "./Tile.mjs";
 import {Color} from "../Color.mjs";
 import {Options} from "../Options.mjs";
+import {Square} from "../Square.mjs";
 
 export class Pill extends GameObject {
     tiles;
     grid;
     tilesGrounded;
     grounded;
+    destroyed;
 
     constructor(grid, tileSize) {
         super(grid.x + (2 * tileSize), (grid.y + tileSize) * 4, tileSize, tileSize);
@@ -15,11 +17,29 @@ export class Pill extends GameObject {
         this.grid = grid;
         this.tilesGrounded = 0;
         this.tiles = [
-            new Tile(grid.tileWidth, grid, 4, 1, Color.GREEN, this, grid.tickUpdate),
-            new Tile(grid.tileWidth, grid, 5, 1, Color.RED, this, grid.tickUpdate),
+            new Tile(grid.tileWidth, grid, 4, 1, this.pickColor(), this, grid.tickUpdate),
+            new Tile(grid.tileWidth, grid, 5, 1, this.pickColor(), this, grid.tickUpdate),
+        ];
+        this.destroyed = false;
+        this.grounded = false;
+    }
+
+    setPositions(posX, posY, posX1, posY1) {
+        this.tiles = [
+            new Tile(this.grid.tileWidth, this.grid, posX, posY, this.pickColor(), this, this.grid.tickUpdate),
+            new Tile(this.grid.tileWidth, this.grid, posX1, posY1, this.pickColor(), this, this.grid.tickUpdate),
+        ];
+    }
+
+    pickColor() {
+        let colors = [
+            Color.RED,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.PINK
         ];
 
-        this.grounded = false;
+        return colors[Math.floor(Math.random() * colors.length)];
     }
 
     tileGrounded(tile) {
@@ -29,6 +49,8 @@ export class Pill extends GameObject {
             }
 
             this.grounded = true;
+            this.grid.handleCollisions();
+
             this.grid.addPill();
         }
 
@@ -113,6 +135,9 @@ export class Pill extends GameObject {
     }
 
     areBlocksAligned() {
+        if (this.tiles.length < 2) {
+            return false;
+        }
         const baseY = this.tiles[0].y;
 
         for (let i = 0; i < this.tiles.length; i++) {
@@ -140,6 +165,5 @@ export class Pill extends GameObject {
 
     render(canvas) {
         super.render(canvas);
-
     }
 }

@@ -45,7 +45,11 @@ export class Tile extends GameObject {
 
             if (nextY <= this.grid.rows) {
 
-                if (this.grounded) {
+                if (this.pill.grounded) {
+                    if (((this.pill.destroyed || this.pill.hasBlocksBelow()) && !this.grid.isTileAtPos(this.xPos, this.yPos + 1, this) )) {
+                        this.moveDown();
+                        this.onCollision();
+                    }
                     return;
                 }
 
@@ -57,12 +61,15 @@ export class Tile extends GameObject {
 
             } else {
                 if (this.pill.grounded === false){
-                    this.grounded = true;
                     this.onGround = true;
                     this.onCollision();
                 }
             }
         }
+    }
+
+    onRemove() {
+        this.pill.destroyed = true;
     }
 
     place() {
@@ -79,5 +86,6 @@ export class Tile extends GameObject {
         this.pill.tileGrounded(this);
         this.tickUpdate = this.baseTickUpdate;
         this.steering = true;
+        this.grid.handleCollisions();
     }
 }

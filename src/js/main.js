@@ -12,7 +12,7 @@ const canvas = new Canvas(container, 500, 500);
 const engine = new Engine(canvas);
 
 const fps = new StaticText(100, 10, 100, 10, 'test', Color.GREEN);
-const grid = new GridArea(100, 100);
+const grid = new GridArea(100, 100, engine);
 
 engine.addObject(fps);
 engine.addObject(grid);
