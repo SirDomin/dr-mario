@@ -13,8 +13,10 @@ export class GridArea {
     columns;
     tiles;
     pill;
+    indexesToRemove;
+    engine;
 
-    constructor(x, y) {
+    constructor(x, y, engine) {
         this.x = x;
         this.y = y;
         this.rows = Options.GRID_ROWS;
@@ -24,6 +26,8 @@ export class GridArea {
         this.columns = Options.GRID_COLUMNS;
         this.tiles = [];
         this.pill = null;
+        this.indexesToRemove = [];
+        this.engine = engine;
 
         this.addPill();
     }
@@ -66,6 +70,97 @@ export class GridArea {
                 xPos === object.xPos && yPos === object.yPos
             )
         }).length > 0;
+    }
+
+    getTileAtPos(xPos, yPos) {
+        return this.tiles.filter(object => {
+            return (
+                xPos === object.xPos && yPos === object.yPos
+            )
+        });
+    }
+
+    handleCollisions() {
+        for (let i = 0; i < this.pill.tiles.length; i++) {
+            this.checkPositionY(this.pill.tiles[i]);
+            this.checkPositionX(this.pill.tiles[i]);
+        }
+    }
+
+    checkPositionY(tile) {
+
+        let chain = 0;
+        let tilesCombo = [];
+        for (let i = 0; i <= this.rows + 1; i++) {
+            const tileFound = this.getTileAtPos(tile.xPos, i)[0] ?? null;
+
+            if (tileFound && tileFound.color === tile.color) {
+                chain++;
+                tilesCombo.push(tileFound);
+            } else {
+                if (chain >= 4) {
+                    this.handleCombo(tilesCombo);
+                }
+                tilesCombo = [];
+                chain = 0;
+            }
+        }
+
+        if (chain >= 4) {
+            this.handleCombo(tilesCombo);
+        }
+    }
+
+    checkPositionX(tile) {
+        let chain = 0;
+        let tilesCombo = [];
+        for (let i = 0; i <= this.columns + 1; i++) {
+            const tileFound = this.getTileAtPos(i, tile.yPos)[0] ?? null;
+
+            if (tileFound !== null && tileFound.color === tile.color) {
+                chain++;
+                tilesCombo.push(tileFound);
+            } else {
+                if (chain >= 4) {
+                    this.handleCombo(tilesCombo);
+                }
+                tilesCombo = [];
+                chain = 0;
+            }
+        }
+
+    }
+
+    handleCombo(tilesCombo) {
+        for (let i = 0; i < this.tiles.length; i++) {
+            for (let j = 0; j < tilesCombo.length; j++) {
+                if (this.tiles[i].id === tilesCombo[j].id) {
+                    this.tiles[i].color = Color.PINK;
+                    this.tiles[i].onRemove();
+                    this.indexesToRemove.push(i);
+                }
+            }
+        }
+
+        this.handleRemovedObjects();
+    }
+
+    handleRemovedObjects() {
+        let indexes = new Set(
+            this.indexesToRemove.sort((a, b) => {
+                return b-a
+            })
+        );
+
+        indexes.forEach(index => {
+            this.tiles.splice(index, 1);
+        });
+
+        this.indexesToRemove = [];
+    }
+
+    checkChain(tile) {
+
     }
 
     placeBlock() {
