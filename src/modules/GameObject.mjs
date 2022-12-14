@@ -1,4 +1,4 @@
-import {EntityTypes} from "./EntityTypes.mjs";
+import {EntityType} from "./EntityType.mjs";
 import {Utils} from "./Utils.mjs";
 import {Square} from "./Square.mjs";
 
@@ -24,7 +24,7 @@ export class GameObject {
         this.width = width;
         this.height = height;
         this.removeOnOutOfBound = false;
-        this.type = EntityTypes.TYPE_DEFAULT_OBJECT;
+        this.type = EntityType.DEFAULT_OBJECT;
         this.collisionType = GameObject.COLLISION_TYPE_BOX;
         this.collisionChecks = 0;
         this.id = Utils.generateId();

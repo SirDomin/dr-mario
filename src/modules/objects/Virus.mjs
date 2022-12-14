@@ -2,19 +2,14 @@ import {GameObject} from "../GameObject.mjs";
 import {Color} from "../Color.mjs";
 import {EntityType} from "../EntityType.mjs";
 
-export class Tile extends GameObject {
+export class Virus extends GameObject {
     tick;
     tickUpdate;
-    onGround;
     xPos;
     yPos;
-    pill;
-    grounded;
-    steering;
 
-    constructor(width, grid, xPos, yPos, color, pill, tickUpdate) {
-        console.log("Grid: " + grid);
-        super(grid.x + ((xPos - 1) * width), grid.y + (width * yPos), width, width);
+    constructor(width, grid, xPos, yPos, color, tickUpdate) {
+        super(grid.x + ((xPos - 1) * width), (grid.y + width) * yPos, width, width);
 
         this.xPos = xPos;
         this.yPos = yPos;
@@ -26,7 +21,7 @@ export class Tile extends GameObject {
         this.baseTickUpdate = tickUpdate;
         this.onGround = false;
         this.grid = grid;
-        this.type = EntityType.TILE;
+        this.type = EntityType.TYPE_TILE;
         this.collisionType = GameObject.COLLISION_TYPE_BOX;
         this.pill = pill;
         this.grounded = false;
@@ -45,9 +40,6 @@ export class Tile extends GameObject {
             let nextY = (this.y - this.grid.y) / this.height + this.speed / this.height;
 
             if (nextY <= this.grid.rows) {
-                if (this.pill == null) {
-                    return;
-                }
 
                 if (this.pill.grounded) {
                     if (((this.pill.destroyed || this.pill.hasBlocksBelow()) && !this.grid.isTileAtPos(this.xPos, this.yPos + 1, this) )) {
@@ -64,10 +56,6 @@ export class Tile extends GameObject {
                 }
 
             } else {
-                if (this.pill == null) {
-                    return;
-                }
-
                 if (this.pill.grounded === false){
                     this.onGround = true;
                     this.onCollision();
