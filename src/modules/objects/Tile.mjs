@@ -41,7 +41,8 @@ export class Tile extends GameObject {
         this.tick++;
         if (this.onGround === false && this.tick % this.tickUpdate === 0) {
             this.tick = 0;
-            let nextY = (this.y - this.grid.y) / this.height + this.speed / this.height;
+            // let nextY = (this.y - this.grid.y) / this.height + this.speed / this.height;
+            let nextY = this.yPos + 1;
 
             if (nextY <= this.grid.rows) {
 
@@ -53,7 +54,7 @@ export class Tile extends GameObject {
                     return;
                 }
 
-                if (this.pill.hasBlocksBelow() === false) {
+                if (this.pill.hasBlocksBelow() === false && this.pill.canMoveDown()) {
                     this.moveDown();
                 } else {
                     this.onCollision();

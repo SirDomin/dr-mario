@@ -10,6 +10,8 @@ export class Pill extends GameObject {
     tilesGrounded;
     grounded;
     destroyed;
+    rotated;
+    position;
 
     constructor(grid, tileSize) {
         super(grid.x + (2 * tileSize), (grid.y + tileSize) * 4, tileSize, tileSize);
@@ -22,6 +24,8 @@ export class Pill extends GameObject {
         ];
         this.destroyed = false;
         this.grounded = false;
+        this.rotated = false;
+        this.position = 1;
     }
 
     setPositions(posX, posY, posX1, posY1) {
@@ -68,6 +72,16 @@ export class Pill extends GameObject {
         }
 
         return false;
+    }
+
+    canMoveDown() {
+        for (let i = 0; i < this.tiles.length; i++) {
+            if (this.tiles[i].yPos + 1 > this.grid.rows && this.areBlocksAligned()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     moveRight() {
@@ -117,16 +131,129 @@ export class Pill extends GameObject {
             return;
         }
 
-        alert('rotate left');
+        switch (this.position) {
+            case 1:
+                this.tiles[1].x = this.tiles[0].x;
+                this.tiles[1].y = this.tiles[0].y - this.tiles[0].height;
+
+                this.tiles[1].xPos = this.tiles[0].xPos;
+                this.tiles[1].yPos = this.tiles[0].yPos - 1
+
+                this.rotated = true;
+                break;
+            case 2:
+                this.tiles[1].x = this.tiles[0].x;
+                this.tiles[1].y = this.tiles[0].y;
+
+                this.tiles[1].xPos = this.tiles[0].xPos;
+                this.tiles[1].yPos = this.tiles[0].yPos;
+
+                this.tiles[0].x = this.tiles[0].x + this.tiles[0].width;
+                this.tiles[0].xPos = this.tiles[0].xPos + 1;
+
+                this.rotated = false;
+                break;
+            case 3:
+                this.tiles[0].x = this.tiles[1].x;
+                this.tiles[0].y = this.tiles[1].y - this.tiles[1].height;
+
+                this.tiles[0].xPos = this.tiles[1].xPos;
+                this.tiles[0].yPos = this.tiles[1].yPos - 1;
+
+
+                this.rotated = true;
+                break;
+
+            case 4:
+                this.tiles[0].x = this.tiles[1].x;
+                this.tiles[0].y = this.tiles[0].y + this.tiles[0].height;
+
+                this.tiles[0].xPos = this.tiles[1].xPos;
+                this.tiles[0].yPos = this.tiles[0].yPos + 1;
+
+                this.tiles[1].x = this.tiles[1].x + this.tiles[1].width;
+                this.tiles[1].xPos = this.tiles[1].xPos + 1;
+                this.rotated = false;
+
+                break;
+
+        }
+
+        this.position = this.position % 4 + 1;
     }
 
     rotateRight() {
-        if (!this.canMove()){
-            return;
+        switch (this.position) {
+            case 1:
+                this.tiles[1].x = this.tiles[0].x;
+                this.tiles[1].y = this.tiles[0].y;
+                this.tiles[1].xPos = this.tiles[0].xPos;
+                this.tiles[1].yPos = this.tiles[0].yPos;
+
+                this.tiles[0].y = this.tiles[0].y - this.tiles[0].height;
+
+                this.tiles[1].yPos = this.tiles[0].yPos - 1;
+
+                this.rotated = true;
+                break;
+            case 2:
+                this.tiles[0].x = this.tiles[1].x;
+                this.tiles[0].y = this.tiles[1].y;
+
+                this.tiles[1].xPos = this.tiles[0].xPos;
+                this.tiles[1].yPos = this.tiles[0].yPos;
+
+                this.tiles[1].x = this.tiles[0].x + this.tiles[0].width;
+                this.tiles[1].y = this.tiles[0].y + this.tiles[1].height;
+
+                this.tiles[1].xPos = this.tiles[0].xPos + 1;
+                this.tiles[1].yPos = this.tiles[0].yPos + 1;
+
+                this.tiles[0].y = this.tiles[0].y + this.tiles[0].height;
+                this.tiles[0].yPos = this.tiles[0].yPos + 1;
+
+                this.rotated = false;
+                break;
+            case 3:
+                this.tiles[0].x = this.tiles[0].x - this.tiles[0].width;
+                this.tiles[0].xPos = this.tiles[0].xPos - 1;
+
+                this.tiles[1].xPos = this.tiles[0].xPos;
+                this.tiles[1].yPos = this.tiles[0].yPos;
+
+                this.tiles[1].y = this.tiles[1].y - this.tiles[1].height;
+                this.tiles[1].yPos = this.tiles[1].yPos - 1;
+
+                this.rotated = true;
+
+                break;
+
+            case 4:
+                this.tiles[1].x = this.tiles[0].x;
+                this.tiles[1].y = this.tiles[0].y + this.tiles[0].height;
+
+                this.tiles[1].xPos = this.tiles[0].xPos;
+                this.tiles[1].yPos = this.tiles[0].yPos + 1;
+
+                this.tiles[0].x = this.tiles[0].x + this.tiles[0].width;
+                this.tiles[0].xPos = this.tiles[0].xPos + 1;
+
+                this.tiles[0].yPos = this.tiles[0].yPos + 1;
+                this.tiles[0].y = this.tiles[0].y + this.tiles[0].height;
+
+                this.rotated = false;
+                break;
+
         }
 
-        alert('rotate right');
+        this.position--;
+
+        if (this.position === 0) {
+            this.position = 4;
+        }
+
     }
+
 
     placeBlock() {
         for (let i = 0; i < this.tiles.length; i++) {
@@ -139,9 +266,22 @@ export class Pill extends GameObject {
             return false;
         }
         const baseY = this.tiles[0].y;
+        const baseX = this.tiles[0].x;
 
-        for (let i = 0; i < this.tiles.length; i++) {
-            if (this.tiles[i].y !== baseY) {
+        if (this.rotated === false) {
+            for (let i = 0; i < this.tiles.length; i++) {
+                if (this.tiles[i].y !== baseY) {
+                    return false;
+                }
+            }
+        } else {
+            for (let i = 0; i < this.tiles.length; i++) {
+                if (this.tiles[i].x !== baseX) {
+                    return false;
+                }
+            }
+
+            if(Math.abs(this.tiles[0].yPos - this.tiles[1].yPos) > 1) {
                 return false;
             }
         }
