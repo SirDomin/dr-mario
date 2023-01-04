@@ -1,8 +1,6 @@
 import {GameObject} from "../GameObject.mjs";
 import {Tile} from "./Tile.mjs";
 import {Color} from "../Color.mjs";
-import {Options} from "../Options.mjs";
-import {Square} from "../Square.mjs";
 
 export class Pill extends GameObject {
     tiles;
