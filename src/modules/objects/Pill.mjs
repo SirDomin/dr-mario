@@ -1,8 +1,6 @@
 import {GameObject} from "../GameObject.mjs";
 import {Tile} from "./Tile.mjs";
 import {Color} from "../Color.mjs";
-import {Options} from "../Options.mjs";
-import {Square} from "../Square.mjs";
 
 export class Pill extends GameObject {
     tiles;
@@ -10,6 +8,8 @@ export class Pill extends GameObject {
     tilesGrounded;
     grounded;
     destroyed;
+    rotated;
+    position;
 
     constructor(grid, tileSize) {
         super(grid.x + (2 * tileSize), (grid.y + tileSize) * 4, tileSize, tileSize);
@@ -22,6 +22,8 @@ export class Pill extends GameObject {
         ];
         this.destroyed = false;
         this.grounded = false;
+        this.rotated = false;
+        this.position = 1;
     }
 
     setPositions(posX, posY, posX1, posY1) {
@@ -68,6 +70,16 @@ export class Pill extends GameObject {
         }
 
         return false;
+    }
+
+    canMoveDown() {
+        for (let i = 0; i < this.tiles.length; i++) {
+            if (this.tiles[i].yPos + 1 > this.grid.rows && this.areBlocksAligned()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     moveRight() {
@@ -117,7 +129,33 @@ export class Pill extends GameObject {
             return;
         }
 
-        alert('rotate left');
+        switch (this.position) {
+            case 1:
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y - this.tiles[0].height);
+                this.rotated = true;
+
+                break;
+            case 2:
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y);
+                this.tiles[0].setPosition(this.tiles[0].x + this.tiles[0].width, this.tiles[0].y);
+                this.rotated = false;
+
+                break;
+            case 3:
+                this.tiles[0].setPosition(this.tiles[1].x, this.tiles[1].y - this.tiles[1].height);
+                this.rotated = true;
+
+                break;
+
+            case 4:
+                this.tiles[0].setPosition(this.tiles[1].x, this.tiles[0].y + this.tiles[0].height);
+                this.tiles[1].setPosition(this.tiles[1].x + this.tiles[1].width, this.tiles[1].y);
+                this.rotated = false;
+
+                break;
+        }
+
+        this.position = this.position % 4 + 1;
     }
 
     rotateRight() {
@@ -125,8 +163,44 @@ export class Pill extends GameObject {
             return;
         }
 
-        alert('rotate right');
+        switch (this.position) {
+            case 1:
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y);
+                this.tiles[0].setPosition(this.tiles[0].x, this.tiles[0].y - this.tiles[0].height);
+                this.rotated = true;
+
+                break;
+            case 2:
+                this.tiles[0].setPosition(this.tiles[1].x, this.tiles[1].y);
+                this.tiles[1].setPosition(this.tiles[0].x + this.tiles[0].width, this.tiles[0].y + this.tiles[1].height);
+                this.tiles[0].setPosition(this.tiles[0].x, this.tiles[0].y + this.tiles[0].height);
+                this.rotated = false;
+
+                break;
+            case 3:
+                this.tiles[0].setPosition(this.tiles[0].x - this.tiles[0].width, this.tiles[0].y);
+                this.tiles[1].setPosition(this.tiles[1].x, this.tiles[1].y - this.tiles[1].height);
+                this.rotated = true;
+
+                break;
+
+            case 4:
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y + this.tiles[0].height)
+                this.tiles[0].setPosition(this.tiles[0].x + this.tiles[0].width, this.tiles[0].y + this.tiles[0].height);
+                this.rotated = false;
+
+                break;
+
+        }
+
+        this.position--;
+
+        if (this.position === 0) {
+            this.position = 4;
+        }
+
     }
+
 
     placeBlock() {
         for (let i = 0; i < this.tiles.length; i++) {
@@ -139,9 +213,22 @@ export class Pill extends GameObject {
             return false;
         }
         const baseY = this.tiles[0].y;
+        const baseX = this.tiles[0].x;
 
-        for (let i = 0; i < this.tiles.length; i++) {
-            if (this.tiles[i].y !== baseY) {
+        if (this.rotated === false) {
+            for (let i = 0; i < this.tiles.length; i++) {
+                if (this.tiles[i].y !== baseY) {
+                    return false;
+                }
+            }
+        } else {
+            for (let i = 0; i < this.tiles.length; i++) {
+                if (this.tiles[i].x !== baseX) {
+                    return false;
+                }
+            }
+
+            if(Math.abs(this.tiles[0].yPos - this.tiles[1].yPos) > 1) {
                 return false;
             }
         }
@@ -160,6 +247,10 @@ export class Pill extends GameObject {
     }
 
     update(canvas) {
+        for (let i = 0; i < this.tiles.length; i++) {
+            this.tiles[i].update(canvas);
+        }
+
         super.update(canvas);
     }
 

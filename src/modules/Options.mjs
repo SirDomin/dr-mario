@@ -14,11 +14,11 @@ export class Options {
             grid.movePillLeft()
         }, true)
 
-        engine.addKeyHandler(40, () => {
+        engine.addKeyHandler(89, () => {
             grid.rotatePillRight()
         }, true)
 
-        engine.addKeyHandler(38, () => {
+        engine.addKeyHandler(84, () => {
             grid.rotatePillLeft()
         }, true)
 
