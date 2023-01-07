@@ -1,8 +1,9 @@
 import {Square} from "./Square.mjs";
 import {Color} from "./Color.mjs";
 import {Pill} from "./objects/Pill.mjs";
-import {EntityTypes} from "./EntityTypes.mjs";
+import {EntityType} from "./EntityType.mjs";
 import {Options} from "./Options.mjs";
+import {LevelGenerator} from "./LevelGenerator.mjs";
 
 export class GridArea {
     x;
@@ -29,7 +30,16 @@ export class GridArea {
         this.indexesToRemove = [];
         this.engine = engine;
 
+        this.levelGenerator = new LevelGenerator(Options.LEVEL, Options.MAP_SIZE, this);
+        this.levelGenerator.generateLevel();
+
+        this.prepareLevel();
         this.addPill();
+    }
+
+    prepareLevel() {
+        this.tiles = this.tiles.concat(this.levelGenerator.getLevel());
+        console.log(this.tiles);
     }
 
     update(canvas) {
@@ -58,6 +68,7 @@ export class GridArea {
             x += this.tileWidth;
 
             canvas.squareBorder(square);
+            // canvas.writeText()
         }
 
         for (let i = 0; i < this.tiles.length; i++) {

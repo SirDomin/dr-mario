@@ -2,19 +2,14 @@ import {GameObject} from "../GameObject.mjs";
 import {Color} from "../Color.mjs";
 import {EntityType} from "../EntityType.mjs";
 
-export class Tile extends GameObject {
+export class Virus extends GameObject {
     tick;
     tickUpdate;
-    onGround;
     xPos;
     yPos;
-    pill;
-    grounded;
-    steering;
 
-    constructor(width, grid, xPos, yPos, color, pill, tickUpdate) {
-        console.log("Grid: " + grid);
-        super(grid.x + ((xPos - 1) * width), grid.y + (width * yPos), width, width);
+    constructor(width, grid, xPos, yPos, color, tickUpdate) {
+        super(grid.x + ((xPos - 1) * width), (grid.y + width) * yPos, width, width);
 
         this.xPos = xPos;
         this.yPos = yPos;
@@ -26,7 +21,7 @@ export class Tile extends GameObject {
         this.baseTickUpdate = tickUpdate;
         this.onGround = false;
         this.grid = grid;
-        this.type = EntityType.TILE;
+        this.type = EntityType.TYPE_TILE;
         this.collisionType = GameObject.COLLISION_TYPE_BOX;
         this.pill = pill;
         this.grounded = false;
@@ -42,13 +37,9 @@ export class Tile extends GameObject {
         this.tick++;
         if (this.onGround === false && this.tick % this.tickUpdate === 0) {
             this.tick = 0;
-            // let nextY = (this.y - this.grid.y) / this.height + this.speed / this.height;
-            let nextY = this.yPos + 1;
+            let nextY = (this.y - this.grid.y) / this.height + this.speed / this.height;
 
             if (nextY <= this.grid.rows) {
-                if (this.pill == null) {
-                    return;
-                }
 
                 if (this.pill.grounded) {
                     if (((this.pill.destroyed || this.pill.hasBlocksBelow()) && !this.grid.isTileAtPos(this.xPos, this.yPos + 1, this) )) {
@@ -58,31 +49,19 @@ export class Tile extends GameObject {
                     return;
                 }
 
-                if (this.pill.hasBlocksBelow() === false && this.pill.canMoveDown()) {
+                if (this.pill.hasBlocksBelow() === false) {
                     this.moveDown();
                 } else {
                     this.onCollision();
                 }
 
             } else {
-                if (this.pill == null) {
-                    return;
-                }
-
                 if (this.pill.grounded === false){
                     this.onGround = true;
                     this.onCollision();
                 }
             }
         }
-    }
-
-    setPosition(x, y) {
-        this.x = x;
-        this.y = y;
-
-        this.yPos = (this.y - this.grid.y) / this.height;
-        this.xPos = (this.x - this.grid.x) / this.width + 1;
     }
 
     onRemove() {
@@ -95,7 +74,8 @@ export class Tile extends GameObject {
     }
 
     moveDown() {
-        this.setPosition(this.x, this.y + this.speed);
+        this.y += this.speed;
+        this.yPos += 1;
     }
 
     onCollision() {
