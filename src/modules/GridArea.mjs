@@ -34,7 +34,9 @@ export class GridArea {
 
     update(canvas) {
         for (let i = 0; i < this.tiles.length; i++) {
-            this.tiles[i].update(canvas);
+            if (this.pill !== this.tiles[i].pill) {
+                this.tiles[i].update(canvas);
+            }
         }
 
         if (this.pill) {

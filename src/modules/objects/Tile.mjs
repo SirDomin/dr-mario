@@ -69,6 +69,14 @@ export class Tile extends GameObject {
         }
     }
 
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+
+        this.yPos = (this.y - this.grid.y) / this.height;
+        this.xPos = (this.x - this.grid.x) / this.width + 1;
+    }
+
     onRemove() {
         this.pill.destroyed = true;
     }
@@ -79,8 +87,7 @@ export class Tile extends GameObject {
     }
 
     moveDown() {
-        this.y += this.speed;
-        this.yPos += 1;
+        this.setPosition(this.x, this.y + this.speed);
     }
 
     onCollision() {

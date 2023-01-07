@@ -131,115 +131,64 @@ export class Pill extends GameObject {
 
         switch (this.position) {
             case 1:
-                this.tiles[1].x = this.tiles[0].x;
-                this.tiles[1].y = this.tiles[0].y - this.tiles[0].height;
-
-                this.tiles[1].xPos = this.tiles[0].xPos;
-                this.tiles[1].yPos = this.tiles[0].yPos - 1
-
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y - this.tiles[0].height);
                 this.rotated = true;
+
                 break;
             case 2:
-                this.tiles[1].x = this.tiles[0].x;
-                this.tiles[1].y = this.tiles[0].y;
-
-                this.tiles[1].xPos = this.tiles[0].xPos;
-                this.tiles[1].yPos = this.tiles[0].yPos;
-
-                this.tiles[0].x = this.tiles[0].x + this.tiles[0].width;
-                this.tiles[0].xPos = this.tiles[0].xPos + 1;
-
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y);
+                this.tiles[0].setPosition(this.tiles[0].x + this.tiles[0].width, this.tiles[0].y);
                 this.rotated = false;
+
                 break;
             case 3:
-                this.tiles[0].x = this.tiles[1].x;
-                this.tiles[0].y = this.tiles[1].y - this.tiles[1].height;
-
-                this.tiles[0].xPos = this.tiles[1].xPos;
-                this.tiles[0].yPos = this.tiles[1].yPos - 1;
-
-
+                this.tiles[0].setPosition(this.tiles[1].x, this.tiles[1].y - this.tiles[1].height);
                 this.rotated = true;
+
                 break;
 
             case 4:
-                this.tiles[0].x = this.tiles[1].x;
-                this.tiles[0].y = this.tiles[0].y + this.tiles[0].height;
-
-                this.tiles[0].xPos = this.tiles[1].xPos;
-                this.tiles[0].yPos = this.tiles[0].yPos + 1;
-
-                this.tiles[1].x = this.tiles[1].x + this.tiles[1].width;
-                this.tiles[1].xPos = this.tiles[1].xPos + 1;
+                this.tiles[0].setPosition(this.tiles[1].x, this.tiles[0].y + this.tiles[0].height);
+                this.tiles[1].setPosition(this.tiles[1].x + this.tiles[1].width, this.tiles[1].y);
                 this.rotated = false;
 
                 break;
-
         }
 
         this.position = this.position % 4 + 1;
     }
 
     rotateRight() {
+        if (!this.canMove()){
+            return;
+        }
+
         switch (this.position) {
             case 1:
-                this.tiles[1].x = this.tiles[0].x;
-                this.tiles[1].y = this.tiles[0].y;
-                this.tiles[1].xPos = this.tiles[0].xPos;
-                this.tiles[1].yPos = this.tiles[0].yPos;
-
-                this.tiles[0].y = this.tiles[0].y - this.tiles[0].height;
-
-                this.tiles[1].yPos = this.tiles[0].yPos - 1;
-
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y);
+                this.tiles[0].setPosition(this.tiles[0].x, this.tiles[0].y - this.tiles[0].height);
                 this.rotated = true;
+
                 break;
             case 2:
-                this.tiles[0].x = this.tiles[1].x;
-                this.tiles[0].y = this.tiles[1].y;
-
-                this.tiles[1].xPos = this.tiles[0].xPos;
-                this.tiles[1].yPos = this.tiles[0].yPos;
-
-                this.tiles[1].x = this.tiles[0].x + this.tiles[0].width;
-                this.tiles[1].y = this.tiles[0].y + this.tiles[1].height;
-
-                this.tiles[1].xPos = this.tiles[0].xPos + 1;
-                this.tiles[1].yPos = this.tiles[0].yPos + 1;
-
-                this.tiles[0].y = this.tiles[0].y + this.tiles[0].height;
-                this.tiles[0].yPos = this.tiles[0].yPos + 1;
-
+                this.tiles[0].setPosition(this.tiles[1].x, this.tiles[1].y);
+                this.tiles[1].setPosition(this.tiles[0].x + this.tiles[0].width, this.tiles[0].y + this.tiles[1].height);
+                this.tiles[0].setPosition(this.tiles[0].x, this.tiles[0].y + this.tiles[0].height);
                 this.rotated = false;
+
                 break;
             case 3:
-                this.tiles[0].x = this.tiles[0].x - this.tiles[0].width;
-                this.tiles[0].xPos = this.tiles[0].xPos - 1;
-
-                this.tiles[1].xPos = this.tiles[0].xPos;
-                this.tiles[1].yPos = this.tiles[0].yPos;
-
-                this.tiles[1].y = this.tiles[1].y - this.tiles[1].height;
-                this.tiles[1].yPos = this.tiles[1].yPos - 1;
-
+                this.tiles[0].setPosition(this.tiles[0].x - this.tiles[0].width, this.tiles[0].y);
+                this.tiles[1].setPosition(this.tiles[1].x, this.tiles[1].y - this.tiles[1].height);
                 this.rotated = true;
 
                 break;
 
             case 4:
-                this.tiles[1].x = this.tiles[0].x;
-                this.tiles[1].y = this.tiles[0].y + this.tiles[0].height;
-
-                this.tiles[1].xPos = this.tiles[0].xPos;
-                this.tiles[1].yPos = this.tiles[0].yPos + 1;
-
-                this.tiles[0].x = this.tiles[0].x + this.tiles[0].width;
-                this.tiles[0].xPos = this.tiles[0].xPos + 1;
-
-                this.tiles[0].yPos = this.tiles[0].yPos + 1;
-                this.tiles[0].y = this.tiles[0].y + this.tiles[0].height;
-
+                this.tiles[1].setPosition(this.tiles[0].x, this.tiles[0].y + this.tiles[0].height)
+                this.tiles[0].setPosition(this.tiles[0].x + this.tiles[0].width, this.tiles[0].y + this.tiles[0].height);
                 this.rotated = false;
+
                 break;
 
         }
@@ -298,6 +247,10 @@ export class Pill extends GameObject {
     }
 
     update(canvas) {
+        for (let i = 0; i < this.tiles.length; i++) {
+            this.tiles[i].update(canvas);
+        }
+
         super.update(canvas);
     }
 
