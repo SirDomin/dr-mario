@@ -1,6 +1,7 @@
 import {GameObject} from "../GameObject.mjs";
 import {Color} from "../Color.mjs";
 import {EntityTypes} from "../EntityTypes.mjs";
+import {Square} from "../Square.mjs";
 
 export class Tile extends GameObject {
     tick;
@@ -47,7 +48,11 @@ export class Tile extends GameObject {
             if (nextY <= this.grid.rows) {
 
                 if (this.pill.grounded) {
-                    if (((this.pill.destroyed || this.pill.hasBlocksBelow()) && !this.grid.isTileAtPos(this.xPos, this.yPos + 1, this) )) {
+                    if (((this.pill.destroyed) && !this.grid.isTileAtPos(this.xPos, this.yPos + 1, this) )) {
+                        this.moveDown();
+                        this.onCollision();
+                    }
+                    if (!this.pill.hasBlocksBelow() && this.pill.canMoveDown() && this.pill.destroyed === false) {
                         this.moveDown();
                         this.onCollision();
                     }
