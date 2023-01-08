@@ -35,7 +35,44 @@ export class Tile extends GameObject {
     }
 
     render(canvas) {
-        canvas.drawSquare(this.x, this.y, this.width, this.height, this.color);
+        const radiusStrength = 7;
+        if (this.pill.destroyed === false) {
+            let radii = [0, 0, 0, 0];
+
+            switch(this.pill.position) {
+                case 1:
+                    if (this.pill.tiles[0] === this) {
+                        radii = [radiusStrength, 0, 0, radiusStrength];
+                    } else {
+                        radii = [0, radiusStrength, radiusStrength, 0];
+                    }
+                    break;
+                case 2:
+                    if (this.pill.tiles[0] === this) {
+                        radii = [0, 0, radiusStrength, radiusStrength];
+                    } else {
+                        radii = [radiusStrength, radiusStrength, 0, 0];
+                    }
+                    break;
+                case 3:
+                    if (this.pill.tiles[0] === this) {
+                        radii = [0, radiusStrength, radiusStrength, 0];
+                    } else {
+                        radii = [radiusStrength, 0, 0, radiusStrength];
+                    }
+                    break;
+                case 4:
+                    if (this.pill.tiles[0] === this) {
+                        radii = [radiusStrength, radiusStrength, 0, 0];
+                    } else {
+                        radii = [0, 0, radiusStrength, radiusStrength];
+                    }
+                    break;
+            }
+            canvas.roundRect(this.x, this.y, this.width, this.height, this.color, radii, 0.7, Color.BLACK);
+        } else {
+            canvas.roundRect(this.x, this.y, this.width, this.height, this.color, [radiusStrength], 0.7, Color.BLACK);
+        }
     }
 
     update(canvas) {
