@@ -32,6 +32,7 @@ export class Tile extends GameObject {
         this.grounded = false;
         this.steering = true;
         grid.tiles.push(this);
+        this.scan = false;
     }
 
     render(canvas) {
@@ -78,8 +79,11 @@ export class Tile extends GameObject {
     update(canvas) {
         this.tick++;
         if (this.onGround === false && this.tick % this.tickUpdate === 0) {
+            if (this.scan === true) {
+                this.grid.handleCollisions();
+                this.scan = false;
+            }
             this.tick = 0;
-            // let nextY = (this.y - this.grid.y) / this.height + this.speed / this.height;
             let nextY = this.yPos + 1;
 
             if (nextY <= this.grid.rows) {
@@ -137,6 +141,7 @@ export class Tile extends GameObject {
 
     moveDown() {
         this.setPosition(this.x, this.y + this.speed);
+        this.scan = true;
     }
 
     onCollision() {
