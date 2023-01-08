@@ -204,7 +204,7 @@ export class GridArea {
 
     addPill() {
         if (this.pill) {
-            this.pill.tiles = [];
+            // this.pill.tiles = [];
         }
 
         this.pill = new Pill(this, this.tileWidth);
