@@ -69,12 +69,19 @@ export class Tile extends GameObject {
         }
     }
 
+    canMoveToPos(x, y) {
+        const newPosY = (y - this.grid.y) / this.height;
+        const newPosX = (x - this.grid.x) / this.width + 1;
+
+        return this.grid.isTileAtPos(newPosX, newPosY, this);
+    }
+
     setPosition(x, y) {
         this.x = x;
         this.y = y;
 
-        this.yPos = (this.y - this.grid.y) / this.height;
-        this.xPos = (this.x - this.grid.x) / this.width + 1;
+        this.yPos = (y - this.grid.y) / this.height;
+        this.xPos = (x - this.grid.x) / this.width + 1;
     }
 
     onRemove() {

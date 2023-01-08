@@ -74,6 +74,20 @@ export class GridArea {
         }).length > 0;
     }
 
+    isTileAtCoords(x, y, tile) {
+        const yPos = (y - this.y) / this.tileHeight;
+        const xPos = (x - this.x) / this.tileWidth + 1;
+
+        return this.isTileAtPos(xPos, yPos, tile);
+    }
+
+    isOutOfBound(x, y) {
+        const yPos = (y - this.y) / this.tileHeight;
+        const xPos = (x - this.x) / this.tileWidth + 1;
+
+        return xPos > this.columns || yPos > this.rows;
+    }
+
     getTileAtPos(xPos, yPos) {
         return this.tiles.filter(object => {
             return (
@@ -90,7 +104,6 @@ export class GridArea {
     }
 
     checkPositionY(tile) {
-
         let chain = 0;
         let tilesCombo = [];
         for (let i = 0; i <= this.rows + 1; i++) {
