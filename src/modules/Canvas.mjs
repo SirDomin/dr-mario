@@ -33,8 +33,19 @@ export class Canvas {
         this.ctx.fillRect(x, y, w, h);
     }
 
-    squareBorder(square, color = Color.GRAY) {
-        this.ctx.lineWidth = 0.1;
+    roundRect(x, y, w, h, color, radii, strokeWidth = 0, strokeColor = Color.BLACK) {
+        this.ctx.lineWidth = strokeWidth;
+        this.ctx.strokeStyle = strokeColor;
+        this.changeColor(color);
+        this.ctx.beginPath();
+        this.ctx.roundRect(x, y, w, h, radii);
+        this.ctx.fill();
+        this.ctx.stroke();
+        this.ctx.closePath();
+    }
+
+    squareBorder(square, color = Color.GRAY, size = 0.1) {
+        this.ctx.lineWidth = size;
         this.ctx.strokeStyle = color;
         this.ctx.beginPath();
         this.ctx.rect(square.x, square.y, square.w, square.h);
