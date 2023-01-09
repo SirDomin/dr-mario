@@ -29,6 +29,9 @@ wss.on('connection', function connection(ws) {
             case SocketMessage.TYPE_PLAYER_KEY:
                     emitToClients(SocketMessage.TYPE_PLAYER_KEY_UPDATE, message.data, message.client)
                 break;
+            case SocketMessage.TYPE_OUT_OF_PILLS:
+                emitPills();
+            break;
         }
     });
 
@@ -51,26 +54,7 @@ function clientAdded(client){
     client.send(SocketMessage.send(SocketMessage.TYPE_CONNECTION, `connected with id: ${client.id}`, client.id));
 
     if (clients.length === 2) {
-        let pills = {
-            pills: [
-                {
-                    color1: Pill.pickColor(),
-                    color2: Pill.pickColor(),
-                },
-                {
-                    color1: Pill.pickColor(),
-                    color2: Pill.pickColor(),
-                },
-                {
-                    color1: Pill.pickColor(),
-                    color2: Pill.pickColor(),
-                },
-                {
-                    color1: Pill.pickColor(),
-                    color2: Pill.pickColor(),
-                },
-            ]
-        }
+        let pills = randomizePills();
 
         for (let x in clients) {
             clients[x].send(SocketMessage.send(SocketMessage.TYPE_PILL, pills, clients[x].id));
@@ -86,6 +70,37 @@ function clientAdded(client){
     if (clients.length > 2) {
         clients = [];
         console.log('reseting');
+    }
+}
+
+function randomizePills() {
+    return {
+        pills: [
+            {
+                color1: Pill.pickColor(),
+                color2: Pill.pickColor(),
+            },
+            {
+                color1: Pill.pickColor(),
+                color2: Pill.pickColor(),
+            },
+            {
+                color1: Pill.pickColor(),
+                color2: Pill.pickColor(),
+            },
+            {
+                color1: Pill.pickColor(),
+                color2: Pill.pickColor(),
+            },
+        ]
+    }
+}
+
+function emitPills() {
+    let pills = randomizePills();
+
+    for (let x in clients) {
+        clients[x].send(SocketMessage.send(SocketMessage.TYPE_PILL, pills, clients[x].id));
     }
 }
 

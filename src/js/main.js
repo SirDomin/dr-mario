@@ -6,7 +6,7 @@ import {GridArea} from "../modules/GridArea.mjs";
 import {Options} from "../modules/Options.mjs";
 import {SocketMessage} from "../modules/SocketMessage.mjs";
 
-const ws = new WebSocket('ws://192.168.0.106:8080');
+const ws = new WebSocket('ws://217.113.236.15:2137');
 
 ws.onmessage = event => {
     const message = SocketMessage.read(event.data);
@@ -29,7 +29,6 @@ ws.onmessage = event => {
 
             break;
         case SocketMessage.TYPE_PLAYER_KEY_UPDATE:
-            console.log(`received`, message.client);
             grid.handleEvent(message);
             grid2.handleEvent(message);
             break;

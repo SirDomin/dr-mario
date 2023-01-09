@@ -3,6 +3,7 @@ import {Color} from "./Color.mjs";
 import {Pill} from "./objects/Pill.mjs";
 import {EntityTypes} from "./EntityTypes.mjs";
 import {Options} from "./Options.mjs";
+import {SocketMessage} from "./SocketMessage.mjs";
 
 export class GridArea {
     x;
@@ -77,7 +78,7 @@ export class GridArea {
 
     update(canvas) {
         for (let i = 0; i < this.tiles.length; i++) {
-            if (this.pill !== this.tiles[i].pill && this.tiles[i].pill in this.pills) {
+            if (this.pill !== this.tiles[i].pill) {
                 this.tiles[i].update(canvas);
             }
         }
@@ -248,6 +249,10 @@ export class GridArea {
     addPill() {
         if (this.pill) {
             // this.pill.tiles = [];
+        }
+
+        if (this.pills.length <= 1) {
+            this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_OUT_OF_PILLS, {}, this.engine.client));
         }
 
         let colors = this.pills.shift();

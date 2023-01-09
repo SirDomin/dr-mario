@@ -5,6 +5,7 @@ export class SocketMessage {
     static TYPE_PLAYER_KEY_UPDATE = 'PLAYER_KEY_UPDATE';
     static TYPE_TICK = 'TICK';
     static TYPE_PILL = 'PILL';
+    static TYPE_OUT_OF_PILLS = 'OUT_OF_PILLS';
 
     type;
     data;

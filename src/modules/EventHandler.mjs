@@ -40,7 +40,6 @@ export class EventHandler {
 
     onKeyDown = (e) => {
         this.keysDown[e.keyCode] = true;
-        console.log(`emited with id ${this.engine.client}`);
         this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_PLAYER_KEY, {code: e.keyCode, event: 'keyDown'}, this.engine.client));
     }
 
