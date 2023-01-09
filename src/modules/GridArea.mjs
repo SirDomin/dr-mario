@@ -15,8 +15,10 @@ export class GridArea {
     pill;
     indexesToRemove;
     engine;
+    client;
+    pills;
 
-    constructor(x, y, engine) {
+    constructor(x, y, engine, client) {
         this.x = x;
         this.y = y;
         this.rows = Options.GRID_ROWS;
@@ -28,13 +30,54 @@ export class GridArea {
         this.pill = null;
         this.indexesToRemove = [];
         this.engine = engine;
+        this.client = client;
+        this.pills = [];
 
-        this.addPill();
+    }
+
+    setClient(client) {
+        this.client = client;
+    }
+
+    addPills(data) {
+        for (const x in data.pills) {
+            this.pills.push([data.pills[x].color1, data.pills[x].color2]);
+        }
+    }
+
+    handleEvent(socketMessage) {
+        const data = socketMessage.data;
+
+        if (socketMessage.client !== this.client) {
+            return;
+        }
+
+        if (data.event === 'keyUp') {
+            return;
+        }
+
+        switch(data.code) {
+            case 39:
+                this.movePillRight();
+            break;
+            case 37:
+                this.movePillLeft();
+            break;
+            case 89:
+                this.rotatePillRight();
+            break;
+            case 84:
+                this.rotatePillLeft();
+            break;
+            case 32:
+                this.placeBlock();
+            break;
+        }
     }
 
     update(canvas) {
         for (let i = 0; i < this.tiles.length; i++) {
-            if (this.pill !== this.tiles[i].pill) {
+            if (this.pill !== this.tiles[i].pill && this.tiles[i].pill in this.pills) {
                 this.tiles[i].update(canvas);
             }
         }
@@ -207,6 +250,8 @@ export class GridArea {
             // this.pill.tiles = [];
         }
 
-        this.pill = new Pill(this, this.tileWidth);
+        let colors = this.pills.shift();
+
+        this.pill = new Pill(this, this.tileWidth, colors[0], colors[1]);
     }
 }

@@ -11,8 +11,10 @@ export class Engine {
     indexesToRemove;
     pause;
     onRunCallback;
+    ws;
+    client;
 
-    constructor(canvas) {
+    constructor(canvas, ws) {
         this.canvas = canvas;
         this.eventHandler = new EventHandler(this.canvas, this);
         this.gameObjects = [];
@@ -24,8 +26,13 @@ export class Engine {
         this.frameTime = 0;
         this.lastLoop = new Date;
         this.loop = performance.now();
+        this.ws = ws;
 
         this.onRunCallback = function(){ }
+    }
+
+    clientConnected(client) {
+        this.client = client;
     }
 
     fpsLoop(){
