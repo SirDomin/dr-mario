@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
-import {SocketMessage} from "./modules/SocketMessage.mjs";
-import {Options} from "./modules/Options.mjs";
-import {Pill} from "./modules/objects/Pill.mjs";
+import {SocketMessage} from "../src/modules/SocketMessage.mjs";
+import {Options} from "../src/modules/Options.mjs";
+import {Pill} from "../src/modules/objects/Pill.mjs";
 
 const wss = new WebSocketServer({ port: 8080 });
 
