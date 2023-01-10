@@ -1,14 +1,16 @@
+import {SocketMessage} from "./SocketMessage.mjs";
+
 export class EventHandler {
     canvas;
     keysDown;
     keyHandlers;
-    game;
+    engine;
 
-    constructor(canvas, game){
+    constructor(canvas, engine){
         this.canvas = canvas;
         this.keysDown = [];
         this.keyHandlers = [];
-        this.game = game;
+        this.engine = engine;
 
         document.addEventListener('keydown', this.onKeyDown);
         document.addEventListener('keyup', this.onKeyUp);
@@ -38,6 +40,7 @@ export class EventHandler {
 
     onKeyDown = (e) => {
         this.keysDown[e.keyCode] = true;
+        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_PLAYER_KEY, {code: e.keyCode, event: 'keyDown'}, this.engine.client));
     }
 
     onKeyUp = (e) => {
@@ -46,6 +49,8 @@ export class EventHandler {
         if (this.keyHandlers[e.keyCode]){
             this.keyHandlers[e.keyCode].handled = false;
         }
+
+        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_PLAYER_KEY, {code: e.keyCode, event: 'keyUp'}, this.engine.client));
     }
 
     onMouseDown = (e) => {

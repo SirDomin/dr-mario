@@ -7,6 +7,7 @@ export class Canvas {
     canvas;
     ctx;
     previousColor;
+    previousFont;
 
     constructor(container, width, height) {
         this.container = container;
@@ -19,9 +20,14 @@ export class Canvas {
         this.canvas.height = this.height;
 
         this.previousColor = Color.PINK;
+        this.previousFont = "VT323";
+        this.previousFontSize = "25";
         this.ctx.fillStyle = this.previousColor;
-
+        this.ctx.font = this.previousFont;
         this.container.appendChild(this.canvas);
+        this.canvas.style.width = '99vh'
+        this.canvas.style.height = '99vh'
+        this.setFont();
     }
 
     drawImage(img, square) {
@@ -55,6 +61,10 @@ export class Canvas {
     writeText = (text, x, y, color = this.previousColor) => {
         this.changeColor(color)
         this.ctx.fillText(text, x, y);
+    }
+
+    setFont(fontSize = this.previousFontSize, font = this.previousFont) {
+        this.ctx.font = `${fontSize}px ${font}`;
     }
 
     clear() {

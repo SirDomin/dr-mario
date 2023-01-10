@@ -15,6 +15,7 @@ export class GameObject {
     color;
     speed;
     target;
+    renderPriority;
 
     static COLLISION_TYPE_BOX = 1;
 
@@ -31,6 +32,8 @@ export class GameObject {
         this.color = 'red';
         this.speed = (6) * (Math.random() + 0.1);
         this.target = null;
+        this.serverTick = false;
+        this.renderPriority = 1;
     }
 
     update(canvas) {

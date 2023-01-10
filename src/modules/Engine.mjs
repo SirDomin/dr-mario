@@ -1,5 +1,6 @@
 import {EventHandler} from "./EventHandler.mjs";
 import {Options} from "./Options.mjs";
+import {SocketMessage} from "./SocketMessage.mjs";
 
 export class Engine {
     canvas;
@@ -11,8 +12,10 @@ export class Engine {
     indexesToRemove;
     pause;
     onRunCallback;
+    ws;
+    client;
 
-    constructor(canvas) {
+    constructor(canvas, ws) {
         this.canvas = canvas;
         this.eventHandler = new EventHandler(this.canvas, this);
         this.gameObjects = [];
@@ -24,8 +27,14 @@ export class Engine {
         this.frameTime = 0;
         this.lastLoop = new Date;
         this.loop = performance.now();
+        this.ws = ws;
+        this.alerts = [];
 
         this.onRunCallback = function(){ }
+    }
+
+    clientConnected(client) {
+        this.client = client;
     }
 
     fpsLoop(){
@@ -50,7 +59,9 @@ export class Engine {
 
     render() {
         this.canvas.clear();
-        this.gameObjects.forEach(gameObject => {
+        this.gameObjects
+            .sort((a, b) => a.renderPriority - b.renderPriority)
+            .forEach(gameObject => {
             gameObject.render(this.canvas);
         });
     }
@@ -82,13 +93,25 @@ export class Engine {
     }
 
     updateTick() {
-        this.gameObjects.forEach(gameObject => {
-            gameObject.update();
-        });
+        this.gameObjects
+            .filter(object => object.serverTick === false)
+            .forEach(gameObject => {
+                gameObject.update();
+            })
+        ;
 
         this.update();
         this.eventHandler.handleKeysDown();
         this.handleOutOfBound();
+    }
+
+    serverTick() {
+        this.gameObjects
+            .filter(object => object.serverTick === true)
+            .forEach(gameObject => {
+                gameObject.update();
+            })
+        ;
     }
 
     update() {
@@ -172,5 +195,15 @@ export class Engine {
         });
 
         this.indexesToRemove = [];
+    }
+
+    createRoom() {
+        const roomName = prompt('Enter name of room:');
+
+        if (roomName.length >= 3) {
+            this.ws.send(SocketMessage.send(SocketMessage.TYPE_CREATE_ROOM, {name: roomName}, this.client));
+        } else {
+            alert('name must be longer than 3');
+        }
     }
 }

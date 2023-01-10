@@ -15,7 +15,7 @@ export class StaticText extends GameObject {
         canvas.writeText(this.text, this.x, this.y, this.color)
     }
 
-    update(text) {
+    update(text = this.text) {
         this.text = text;
     }
 }

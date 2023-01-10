@@ -6,24 +6,8 @@ export class Options {
     static GRID_ROWS = 16;
 
     static configureKeysForGrid(engine, grid) {
-        engine.addKeyHandler(39, () => {
-            grid.movePillRight()
-        }, true)
-
-        engine.addKeyHandler(37, () => {
-            grid.movePillLeft()
-        }, true)
-
-        engine.addKeyHandler(89, () => {
-            grid.rotatePillRight()
-        }, true)
-
-        engine.addKeyHandler(84, () => {
-            grid.rotatePillLeft()
-        }, true)
-
-        engine.addKeyHandler(32, () => {
-            grid.placeBlock()
+        engine.addKeyHandler(76, () => {
+            engine.createRoom();
         }, true)
     }
 }

@@ -11,14 +11,14 @@ export class Pill extends GameObject {
     rotated;
     position;
 
-    constructor(grid, tileSize) {
+    constructor(grid, tileSize, color1, color2) {
         super(grid.x + (2 * tileSize), (grid.y + tileSize) * 4, tileSize, tileSize);
 
         this.grid = grid;
         this.tilesGrounded = 0;
         this.tiles = [
-            new Tile(grid.tileWidth, grid, 4, 1, this.pickColor(), this, grid.tickUpdate),
-            new Tile(grid.tileWidth, grid, 5, 1, this.pickColor(), this, grid.tickUpdate),
+            new Tile(grid.tileWidth, grid, 4, 1, color1, this, grid.tickUpdate),
+            new Tile(grid.tileWidth, grid, 5, 1, color2, this, grid.tickUpdate),
         ];
         this.destroyed = false;
         this.grounded = false;
@@ -28,12 +28,12 @@ export class Pill extends GameObject {
 
     setPositions(posX, posY, posX1, posY1) {
         this.tiles = [
-            new Tile(this.grid.tileWidth, this.grid, posX, posY, this.pickColor(), this, this.grid.tickUpdate),
-            new Tile(this.grid.tileWidth, this.grid, posX1, posY1, this.pickColor(), this, this.grid.tickUpdate),
+            new Tile(this.grid.tileWidth, this.grid, posX, posY, Pill.pickColor(), this, this.grid.tickUpdate),
+            new Tile(this.grid.tileWidth, this.grid, posX1, posY1, Pill.pickColor(), this, this.grid.tickUpdate),
         ];
     }
 
-    pickColor() {
+    static pickColor() {
         let colors = [
             Color.RED,
             Color.YELLOW,
