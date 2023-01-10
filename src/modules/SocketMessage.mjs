@@ -6,6 +6,12 @@ export class SocketMessage {
     static TYPE_TICK = 'TICK';
     static TYPE_PILL = 'PILL';
     static TYPE_OUT_OF_PILLS = 'OUT_OF_PILLS';
+    static TYPE_CREATE_ROOM = 'CREATE_ROOM';
+    static TYPE_ROOM_CREATED = 'ROOM_CREATED';
+    static TYPE_JOINED_ROOM = 'JOINED_ROOM';
+    static TYPE_ALERT = 'ALERT';
+    static TYPE_POINTS_UPDATED = 'POINTS_UPDATED';
+    static TYPE_GAME_OVER = 'GAME_OVER';
 
     type;
     data;

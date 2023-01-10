@@ -6,5 +6,8 @@ export class Options {
     static GRID_ROWS = 16;
 
     static configureKeysForGrid(engine, grid) {
+        engine.addKeyHandler(76, () => {
+            engine.createRoom();
+        }, true)
     }
 }

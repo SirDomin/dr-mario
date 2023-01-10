@@ -33,7 +33,7 @@ export class GridArea {
         this.engine = engine;
         this.client = client;
         this.pills = [];
-
+        this.serverTick = true;
     }
 
     setClient(client) {
@@ -201,7 +201,13 @@ export class GridArea {
             }
         }
 
+        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_POINTS_UPDATED, {combo: tilesCombo.length, client: this.client}, this.engine.client));
+
         this.handleRemovedObjects();
+    }
+
+    gameOver() {
+        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_GAME_OVER, {client: this.client}, this.engine.client));
     }
 
     handleRemovedObjects() {
@@ -251,11 +257,15 @@ export class GridArea {
             // this.pill.tiles = [];
         }
 
-        if (this.pills.length <= 1) {
+        if (this.pills.length <= 2) {
             this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_OUT_OF_PILLS, {}, this.engine.client));
         }
 
         let colors = this.pills.shift();
+
+        if (!colors) {
+            return;
+        }
 
         this.pill = new Pill(this, this.tileWidth, colors[0], colors[1]);
     }
