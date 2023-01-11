@@ -3,6 +3,7 @@ import {Color} from "./Color.mjs";
 import {Pill} from "./objects/Pill.mjs";
 import {EntityTypes} from "./EntityTypes.mjs";
 import {Options} from "./Options.mjs";
+import {SocketMessage} from "./SocketMessage.mjs";
 
 export class GridArea {
     x;
@@ -15,8 +16,10 @@ export class GridArea {
     pill;
     indexesToRemove;
     engine;
+    client;
+    pills;
 
-    constructor(x, y, engine) {
+    constructor(x, y, engine, client) {
         this.x = x;
         this.y = y;
         this.rows = Options.GRID_ROWS;
@@ -28,8 +31,49 @@ export class GridArea {
         this.pill = null;
         this.indexesToRemove = [];
         this.engine = engine;
+        this.client = client;
+        this.pills = [];
+        this.serverTick = true;
+    }
 
-        this.addPill();
+    setClient(client) {
+        this.client = client;
+    }
+
+    addPills(data) {
+        for (const x in data.pills) {
+            this.pills.push([data.pills[x].color1, data.pills[x].color2]);
+        }
+    }
+
+    handleEvent(socketMessage) {
+        const data = socketMessage.data;
+
+        if (data.client !== this.client) {
+            return;
+        }
+
+        if (data.event === 'keyUp') {
+            return;
+        }
+
+        switch(data.code) {
+            case 39:
+                this.movePillRight();
+            break;
+            case 37:
+                this.movePillLeft();
+            break;
+            case 89:
+                this.rotatePillRight();
+            break;
+            case 84:
+                this.rotatePillLeft();
+            break;
+            case 32:
+                this.placeBlock();
+            break;
+        }
     }
 
     update(canvas) {
@@ -157,7 +201,13 @@ export class GridArea {
             }
         }
 
+        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_POINTS_UPDATED, {combo: tilesCombo.length, client: this.client}, this.engine.client));
+
         this.handleRemovedObjects();
+    }
+
+    gameOver() {
+        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_GAME_OVER, {client: this.client}, this.engine.client));
     }
 
     handleRemovedObjects() {
@@ -207,6 +257,16 @@ export class GridArea {
             // this.pill.tiles = [];
         }
 
-        this.pill = new Pill(this, this.tileWidth);
+        if (this.pills.length <= 2) {
+            this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_OUT_OF_PILLS, {}, this.engine.client));
+        }
+
+        let colors = this.pills.shift();
+
+        if (!colors) {
+            return;
+        }
+
+        this.pill = new Pill(this, this.tileWidth, colors[0], colors[1]);
     }
 }

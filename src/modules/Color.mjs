@@ -7,6 +7,7 @@ export class Color {
     static LIGHT_BLUE = '#009C9C';
     static YELLOW = '#9C9C00';
     static GRAY = '#535A5D';
+    static WHITE = '#FFFFFF';
 
     static randomColor() {
         let colors = [
