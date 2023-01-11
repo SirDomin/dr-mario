@@ -3,6 +3,8 @@ import {Color} from "../Color.mjs";
 
 export class Alert extends GameObject {
     static TYPE_INFO = 'INFO';
+    static TYPE_ERROR = 'ERROR';
+    static TYPE_SUCCESS = 'SUCCESS';
 
     text;
     color;
@@ -28,6 +30,14 @@ export class Alert extends GameObject {
             case Alert.TYPE_INFO:
                 this.backgroundColor = Color.BLACK;
                 this.color = Color.YELLOW;
+            break;
+            case Alert.TYPE_ERROR:
+                this.backgroundColor = Color.BLACK;
+                this.color = Color.RED;
+            break;
+            case Alert.TYPE_SUCCESS:
+                this.backgroundColor = Color.WHITE;
+                this.color = Color.GREEN;
             break;
         }
     }

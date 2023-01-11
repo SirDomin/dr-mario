@@ -49,7 +49,7 @@ export class GridArea {
     handleEvent(socketMessage) {
         const data = socketMessage.data;
 
-        if (socketMessage.client !== this.client) {
+        if (data.client !== this.client) {
             return;
         }
 
