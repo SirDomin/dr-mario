@@ -40,7 +40,13 @@ export class EventHandler {
 
     onKeyDown = (e) => {
         this.keysDown[e.keyCode] = true;
-        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_PLAYER_KEY, {code: e.keyCode, event: 'keyDown'}, this.engine.client));
+
+        if (this.engine.client) {
+            this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_PLAYER_KEY, {
+                code: e.keyCode,
+                event: 'keyDown'
+            }, this.engine.client));
+        }
     }
 
     onKeyUp = (e) => {
@@ -50,7 +56,12 @@ export class EventHandler {
             this.keyHandlers[e.keyCode].handled = false;
         }
 
-        this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_PLAYER_KEY, {code: e.keyCode, event: 'keyUp'}, this.engine.client));
+        if (this.engine.client) {
+            this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_PLAYER_KEY, {
+                code: e.keyCode,
+                event: 'keyUp'
+            }, this.engine.client));
+        }
     }
 
     onMouseDown = (e) => {

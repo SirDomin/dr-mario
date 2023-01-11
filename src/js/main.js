@@ -7,7 +7,17 @@ import {Options} from "../modules/Options.mjs";
 import {SocketMessage} from "../modules/SocketMessage.mjs";
 import {Alert} from "../modules/objects/Alert.mjs";
 
-const ws = new WebSocket('ws://192.168.0.106:8080');
+const serverIp = 'ws://192.168.0.106:8080';
+
+const ws = new WebSocket(serverIp);
+
+ws.onerror = event => {
+    engine.addObject(new Alert(`could not connect to server`, Alert.TYPE_ERROR, engine));
+}
+
+ws.onopen = event => {
+    engine.addObject(new Alert(`Connected to server!`, Alert.TYPE_SUCCESS, engine));
+}
 
 ws.onmessage = event => {
     const message = SocketMessage.read(event.data);
@@ -23,7 +33,6 @@ ws.onmessage = event => {
             break;
         case SocketMessage.TYPE_CONNECTION:
             engine.clientConnected(message.client);
-            engine.run();
             break;
 
         case SocketMessage.TYPE_PLAYER_KEY:
@@ -88,6 +97,7 @@ const container = document.getElementById('game-container');
 
 const canvas = new Canvas(container, 500, 500);
 const engine = new Engine(canvas, ws);
+engine.run();
 
 const fps = new StaticText(100, 25, 100, 10, 'test', Color.GREEN);
 const grid = new GridArea(50, 100, engine);
