@@ -7,7 +7,8 @@ import {Options} from "../modules/Options.mjs";
 import {SocketMessage} from "../modules/SocketMessage.mjs";
 import {Alert} from "../modules/objects/Alert.mjs";
 
-const serverIp = 'ws://192.168.0.106:8080';
+// let serverIp = 'ws://192.168.0.106:8080';
+let serverIp = `ws://${prompt('Enter IP')}`;
 
 const ws = new WebSocket(serverIp);
 
@@ -17,6 +18,10 @@ ws.onerror = event => {
 
 ws.onopen = event => {
     engine.addObject(new Alert(`Connected to server!`, Alert.TYPE_SUCCESS, engine));
+}
+
+ws.onclose = event => {
+    engine.addObject(new Alert(`Disconnected from server!`, Alert.TYPE_ERROR, engine));
 }
 
 ws.onmessage = event => {
@@ -33,8 +38,7 @@ ws.onmessage = event => {
             break;
         case SocketMessage.TYPE_CONNECTION:
             engine.clientConnected(message.client);
-            break;
-
+        break;
         case SocketMessage.TYPE_PLAYER_KEY:
 
             break;
@@ -86,6 +90,9 @@ ws.onmessage = event => {
             engine.removeObject(roomInfoUpdated.id);
             engine.removeObject(player1Info.id);
             engine.removeObject(player2Info.id);
+        break;
+        case SocketMessage.TYPE_PING:
+
         break;
     }
 }

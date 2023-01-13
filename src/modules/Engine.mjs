@@ -29,12 +29,16 @@ export class Engine {
         this.loop = performance.now();
         this.ws = ws;
         this.alerts = [];
-
+        this.pingInterval = null;
         this.onRunCallback = function(){ }
     }
 
     clientConnected(client) {
         this.client = client;
+        this.pingInterval = setInterval(() => {
+            this.ws.send(SocketMessage.send(SocketMessage.TYPE_PING, {}, this.client));
+            console.log('ping');
+        }, 2000);
     }
 
     fpsLoop(){

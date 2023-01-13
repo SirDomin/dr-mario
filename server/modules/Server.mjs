@@ -27,7 +27,7 @@ export class Server {
     }
 
     createSocketListener() {
-        this.websocketServer.on('connection', function connection(ws) {
+        this.websocketServer.on('connection', function connection(ws, req) {
             ws.on('message', function message(data) {
                 let message = SocketMessage.read(data);
                 switch (message.type) {
@@ -53,6 +53,9 @@ export class Server {
                     case SocketMessage.TYPE_GAME_OVER:
                         this.handleGameOver(message);
                         break;
+                    case SocketMessage.TYPE_PING:
+                        this.clientManager.handlePing(message);
+                    break;
                 }
             }.bind(this));
 
@@ -67,7 +70,6 @@ export class Server {
         const room = this.roomManager.getRoomById(client.roomId);
 
         this.gameManager.handleCombo(room, message.data.client, message.data.combo, message.client);
-
     }
 
     handleGameOver(message) {
@@ -76,7 +78,6 @@ export class Server {
         const room = this.roomManager.getRoomById(client.roomId);
 
         this.gameManager.finishGame(room, client.id);
-
     }
 
     handleKeyPressed(message) {

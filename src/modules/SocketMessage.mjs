@@ -12,6 +12,7 @@ export class SocketMessage {
     static TYPE_ALERT = 'ALERT';
     static TYPE_POINTS_UPDATED = 'POINTS_UPDATED';
     static TYPE_GAME_OVER = 'GAME_OVER';
+    static TYPE_PING = 'PING;'
 
     type;
     data;
