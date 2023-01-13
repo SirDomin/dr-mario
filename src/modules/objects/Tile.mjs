@@ -149,7 +149,7 @@ export class Tile extends GameObject {
         this.tickUpdate = this.baseTickUpdate;
         this.steering = true;
         this.grid.handleCollisions();
-        if (this.yPos === 1) {
+        if (this.yPos <= 1) {
             this.grid.gameOver();
         }
     }

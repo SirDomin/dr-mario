@@ -224,10 +224,6 @@ export class GridArea {
         this.indexesToRemove = [];
     }
 
-    checkChain(tile) {
-
-    }
-
     placeBlock() {
         this.pill.placeBlock();
     }
@@ -253,10 +249,6 @@ export class GridArea {
     }
 
     addPill() {
-        if (this.pill) {
-            // this.pill.tiles = [];
-        }
-
         if (this.pills.length <= 2) {
             this.engine.ws.send(SocketMessage.send(SocketMessage.TYPE_OUT_OF_PILLS, {}, this.engine.client));
         }

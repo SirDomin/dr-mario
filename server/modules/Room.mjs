@@ -34,6 +34,9 @@ export class Room {
     }
 
     sendPointsToClients() {
+        if (this.clients.length !== 2) {
+            return;
+        }
         this.emitToClients(SocketMessage.TYPE_POINTS_UPDATED, {
             players: [
                 {
@@ -69,6 +72,9 @@ export class Room {
     }
 
     gameFinished() {
+        if (this.clients.length !== 2) {
+            return;
+        }
         this.emitToClients(SocketMessage.TYPE_GAME_OVER, {
             players: [
                 {
