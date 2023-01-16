@@ -36,8 +36,8 @@ export class Engine {
     clientConnected(client) {
         this.client = client;
         this.pingInterval = setInterval(() => {
+
             this.ws.send(SocketMessage.send(SocketMessage.TYPE_PING, {}, this.client));
-            console.log('ping');
         }, 2000);
     }
 

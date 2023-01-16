@@ -12,13 +12,13 @@ export class Alert extends GameObject {
     engine;
     type;
 
-    constructor(text, type, engine) {
+    constructor(text, type, engine, lifetime = 200) {
         super(150, 20, 200, 50);
 
         this.color = Color.RED;
         this.backgroundColor = Color.BLACK;
         this.text = text;
-        this.lifetime = 200;
+        this.lifetime = lifetime;
         this.engine = engine;
         this.type = type;
         this.renderPriority = 2;
@@ -44,7 +44,12 @@ export class Alert extends GameObject {
 
     render(canvas) {
         canvas.drawSquare(this.x, this.y, this.width, this.height, this.backgroundColor);
-        const fontSizeNeeded = this.width / this.text.length * 2.2
+        let fontSizeNeeded = this.width / this.text.length * 2.2
+
+        if (fontSizeNeeded > 50) {
+            fontSizeNeeded = 50;
+        }
+
         canvas.setFont(fontSizeNeeded);
         canvas.writeText(this.text, this.x + 10, this.y + this.height / 2 + fontSizeNeeded * 0.3, this.color)
         canvas.setFont();

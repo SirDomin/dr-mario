@@ -14,8 +14,7 @@ export class Tile extends GameObject {
     steering;
 
     constructor(width, grid, xPos, yPos, color, pill, tickUpdate) {
-        super(grid.x + ((xPos - 1) * width), (grid.y + width) * yPos, width, width);
-
+        super(grid.x + ((xPos - 1) * width), grid.y + (width * yPos), width, width)
         this.xPos = xPos;
         this.yPos = yPos;
 
@@ -120,6 +119,14 @@ export class Tile extends GameObject {
         const newPosX = (x - this.grid.x) / this.width + 1;
 
         return this.grid.isTileAtPos(newPosX, newPosY, this);
+    }
+
+    setPositionsToGrid(xPos, yPos) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+
+        this.x = this.grid.x + ((xPos - 1) * this.width);
+        this.y = this.grid.y + (this.width * yPos);
     }
 
     setPosition(x, y) {
