@@ -7,8 +7,7 @@ import {Options} from "../modules/Options.mjs";
 import {SocketMessage} from "../modules/SocketMessage.mjs";
 import {Alert} from "../modules/objects/Alert.mjs";
 
-// let serverIp = 'ws://192.168.0.106:8080';
-let serverIp = `ws://${prompt('Enter IP')}`;
+let serverIp = 'ws://192.168.0.106:8080';
 
 const ws = new WebSocket(serverIp);
 
@@ -29,11 +28,31 @@ ws.onmessage = event => {
 
     switch (message.type) {
         case SocketMessage.TYPE_GAME_START:
-            grid.setClient(message.data.players[0]);
-            grid2.setClient(message.data.players[1])
+            grids.forEach(grid => {
+                grid.addPill();
+            });
 
-            grid.addPill();
-            grid2.addPill();
+            grids[0].setClient(message.data.players[0]);
+            grids[1].setClient(message.data.players[1]);
+
+            setTimeout(() => {
+                grids.forEach(grid => {
+                    grid.addPill();
+                });
+            }, 4000);
+
+            setTimeout(() => {
+                engine.addObject(new Alert(`Starting in 3...`, Alert.TYPE_INFO, engine, 60));
+            }, 1000);
+
+            setTimeout(() => {
+                engine.addObject(new Alert(`Starting in 2...`, Alert.TYPE_INFO, engine, 60));
+            }, 2000)
+
+            setTimeout(() => {
+                engine.addObject(new Alert(`Starting in 1...`, Alert.TYPE_INFO, engine, 60));
+            }, 3000)
+
 
             break;
         case SocketMessage.TYPE_CONNECTION:
@@ -43,15 +62,18 @@ ws.onmessage = event => {
 
             break;
         case SocketMessage.TYPE_PLAYER_KEY_UPDATE:
-            grid.handleEvent(message);
-            grid2.handleEvent(message);
+            grids.forEach(grid => {
+                grid.handleEvent(message);
+            })
+
             break;
         case SocketMessage.TYPE_TICK:
             engine.serverTick();
         break;
         case SocketMessage.TYPE_PILL:
-            grid.addPills(message.data);
-            grid2.addPills(message.data);
+            grids.forEach(grid => {
+                grid.addPills(message.data);
+            })
         break;
         case SocketMessage.TYPE_ALERT:
             engine.addObject(new Alert(message.data.text, message.data.type, engine));
@@ -70,7 +92,7 @@ ws.onmessage = event => {
             engine.addObject(playerPoints[1]);
         break;
         case SocketMessage.TYPE_POINTS_UPDATED:
-            if (grid.client === message.data.players[0].id) {
+            if (grids[0].client === message.data.players[0].id) {
                 playerPoints[0].text = `points: ${message.data.players[0].points}`;
                 playerPoints[1].text = `points: ${message.data.players[1].points}`;
             } else {
@@ -80,10 +102,11 @@ ws.onmessage = event => {
 
         break;
         case SocketMessage.TYPE_GAME_OVER:
-            grid.tiles = [];
-            grid2.tiles = [];
-            grid.pills = [];
-            grid.pills = [];
+            grids.forEach(grid => {
+                grid.tiles = [];
+                grid.pills = [];
+            })
+
             engine.addObject(new Alert('GAME OVER', Alert.TYPE_INFO, engine));
 
             engine.addObject(roomInfo);
@@ -107,29 +130,33 @@ const engine = new Engine(canvas, ws);
 engine.run();
 
 const fps = new StaticText(100, 25, 100, 10, 'test', Color.GREEN);
-const grid = new GridArea(50, 100, engine);
-const grid2 = new GridArea(300, 100, engine);
-const playerPoints = [
-    new StaticText(grid.x, grid.y + 10, 100, 10, `points: `, Color.GREEN),
-    new StaticText(grid2.x, grid2.y + 10, 100, 10, `points: `, Color.GREEN),
+const grids = [
+    new GridArea(50, 150, engine),
+    new GridArea(300, 150, engine),
 ];
-const player1Info = new StaticText(grid.x, grid.y - 10, 100, 10, ``, Color.GREEN);
-const player2Info = new StaticText(grid2.x, grid2.y - 10, 100, 10, ``, Color.GREEN)
 
+const playerPoints = [
+    new StaticText(grids[0].x, grids[0].y - 20, 100, 10, `points: `, Color.GREEN),
+    new StaticText(grids[1].x, grids[1].y - 20, 100, 10, `points: `, Color.GREEN),
+];
+
+const player1Info = new StaticText(grids[0].x, grids[0].y - 40, 100, 10, ``, Color.GREEN);
+const player2Info = new StaticText(grids[1].x, grids[1].y - 40, 100, 10, ``, Color.GREEN)
 
 engine.addObject(roomInfo);
 
 engine.addObject(fps);
-engine.addObject(grid);
-engine.addObject(grid2);
+grids.forEach(grid => {
+    engine.addObject(grid);
+})
 
-Options.configureKeysForGrid(engine, grid);
+Options.configureKeysForGrid(engine, grids[0]);
 
 engine.onRun = function() {
-    const tiles = grid.tiles.length;
+    const tiles = grids[0].tiles.length;
     fps.text = `FPS: ${engine.fps}, tiles: ${tiles}`;
 
     if (tiles > 1000) {
-        grid.tiles = [];
+        grids[0].tiles = [];
     }
 }

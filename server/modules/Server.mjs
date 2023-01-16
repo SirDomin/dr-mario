@@ -83,6 +83,10 @@ export class Server {
     handleKeyPressed(message) {
         const client = this.clientManager.getClientById(message.client);
 
+        if (!client) {
+            return;
+        }
+
         const room = this.roomManager.getRoomById(client.roomId);
 
         if (!room) {

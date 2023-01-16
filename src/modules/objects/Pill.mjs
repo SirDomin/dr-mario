@@ -3,6 +3,9 @@ import {Tile} from "./Tile.mjs";
 import {Color} from "../Color.mjs";
 
 export class Pill extends GameObject {
+    static PILL_STATE_PREVIEW = 'PREVIEW';
+    static PILL_STATE_IN_GAME = 'IN_GAME';
+
     tiles;
     grid;
     tilesGrounded;
@@ -10,6 +13,7 @@ export class Pill extends GameObject {
     destroyed;
     rotated;
     position;
+    state;
 
     constructor(grid, tileSize, color1, color2) {
         super(grid.x + (2 * tileSize), (grid.y + tileSize) * 4, tileSize, tileSize);
@@ -17,13 +21,22 @@ export class Pill extends GameObject {
         this.grid = grid;
         this.tilesGrounded = 0;
         this.tiles = [
-            new Tile(grid.tileWidth, grid, 4, 1, color1, this, grid.tickUpdate),
-            new Tile(grid.tileWidth, grid, 5, 1, color2, this, grid.tickUpdate),
+            new Tile(grid.tileWidth, grid, 4, 0, color1, this, grid.tickUpdate),
+            new Tile(grid.tileWidth, grid, 5, 0, color2, this, grid.tickUpdate),
         ];
+        this.state = Pill.PILL_STATE_PREVIEW;
         this.destroyed = false;
         this.grounded = false;
         this.rotated = false;
         this.position = 1;
+    }
+
+    endPreview() {
+        this.state = Pill.PILL_STATE_IN_GAME;
+
+        this.tiles.forEach(tile => {
+            tile.setPositionsToGrid(tile.xPos, 1);
+        });
     }
 
     setPositions(posX, posY, posX1, posY1) {

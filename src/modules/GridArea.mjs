@@ -78,7 +78,7 @@ export class GridArea {
 
     update(canvas) {
         for (let i = 0; i < this.tiles.length; i++) {
-            if (this.pill !== this.tiles[i].pill) {
+            if (this.pill !== this.tiles[i].pill && this.previewPill !== this.tiles[i].pill) {
                 this.tiles[i].update(canvas);
             }
         }
@@ -259,6 +259,13 @@ export class GridArea {
             return;
         }
 
-        this.pill = new Pill(this, this.tileWidth, colors[0], colors[1]);
+        if (this.previewPill) {
+            this.pill = this.previewPill;
+            this.pill.endPreview();
+
+            this.previewPill = new Pill(this, this.tileWidth, colors[0], colors[1]);
+        } else {
+            this.previewPill = new Pill(this, this.tileWidth, colors[0], colors[1]);
+        }
     }
 }
