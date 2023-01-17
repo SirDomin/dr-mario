@@ -34,6 +34,7 @@ export class GridArea {
         this.client = client;
         this.pills = [];
         this.serverTick = true;
+        this.engine.addGrid(this);
     }
 
     setClient(client) {
