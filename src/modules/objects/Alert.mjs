@@ -12,7 +12,7 @@ export class Alert extends GameObject {
     engine;
     type;
 
-    constructor(text, type, engine, lifetime = 200) {
+    constructor(text, type, engine, lifetime = 60) {
         super(150, 20, 200, 50);
 
         this.color = Color.RED;

@@ -1,6 +1,9 @@
 import {EventHandler} from "./EventHandler.mjs";
 import {Options} from "./Options.mjs";
 import {SocketMessage} from "./SocketMessage.mjs";
+import {Alert} from "./objects/Alert.mjs";
+import {StaticText} from "./objects/StaticText.mjs";
+import {Color} from "./Color.mjs";
 
 export class Engine {
     canvas;
@@ -27,17 +30,179 @@ export class Engine {
         this.frameTime = 0;
         this.lastLoop = new Date;
         this.loop = performance.now();
-        this.ws = ws;
+        this.ws = new WebSocket(`ws://${Options.SERVER_IP}`);
         this.alerts = [];
         this.pingInterval = null;
-        this.onRunCallback = function(){ }
+        this.grids = [];
+        this.onRunCallback = function(){ };
+        this.playerInfo = [];
+        this.playerPoints = [];
+        this.room = null;
+
+        this.roomInfo = new StaticText(100, 50, 100, 10, `Press L to join or create a room!`, Color.GREEN)
+        this.roomInfoUpdated = new StaticText(100, 50, 100, 10, ``, Color.GREEN);
+
+        this.addObject(this.roomInfo);
+    }
+
+    addGrid(grid) {
+        this.grids.push(grid);
+        this.addObject(grid);
+        if (this.grids.length === 2) {
+            this.setupSocketListener();
+            this.prepareScoreBoards();
+            Options.configureKeysForGrid(this, this.grids[0]);
+        }
+    }
+
+    prepareScoreBoards() {
+        this.playerPoints = [
+            new StaticText(this.grids[0].x, this.grids[0].y - 20, 100, 10, `points: `, Color.GREEN),
+            new StaticText(this.grids[1].x, this.grids[1].y - 20, 100, 10, `points: `, Color.GREEN),
+        ];
+
+        this.playerInfo = [
+            new StaticText(this.grids[0].x, this.grids[0].y - 40, 100, 10, ``, Color.GREEN),
+            new StaticText(this.grids[1].x, this.grids[1].y - 40, 100, 10, ``, Color.GREEN),
+        ];
     }
 
     clientConnected(client) {
         this.client = client;
         this.pingInterval = setInterval(() => {
-            this.ws.send(SocketMessage.send(SocketMessage.TYPE_PING, {}, this.client));
+            try {
+                this.ws.send(SocketMessage.send(SocketMessage.TYPE_PING, {}, this.client));
+            } catch (exception) {
+                this.addObject(new Alert(`Disconnected from server`, Alert.TYPE_ERROR, this));
+
+                clearInterval(this.pingInterval);
+            }
         }, 2000);
+    }
+
+    setupSocketListener() {
+        this.ws.onerror = event => {
+            this.addObject(new Alert(`could not connect to server`, Alert.TYPE_ERROR, this));
+            this.room = null;
+            setTimeout(() => {
+                const ip = prompt('Enter Server IP: ');
+
+                if (ip === null || ip === '') {
+                    return;
+                }
+
+                this.ws = new WebSocket(`ws://${ip}`);
+
+                this.setupSocketListener();
+            }, 1000);
+        }
+
+        this.ws.onopen = event => {
+            this.addObject(new Alert(`Connected to server!`, Alert.TYPE_SUCCESS, this));
+        }
+
+        this.ws.onclose = event => {
+            this.addObject(new Alert(`Disconnected from server!`, Alert.TYPE_ERROR, this));
+            this.room = null;
+        }
+
+        this.ws.onmessage = event => {
+            const message = SocketMessage.read(event.data);
+
+            switch (message.type) {
+                case SocketMessage.TYPE_GAME_START:
+                    this.grids.forEach(grid => {
+                        grid.addPill();
+                    });
+
+                    this.grids[0].setClient(message.data.players[0]);
+                    this.grids[1].setClient(message.data.players[1]);
+
+                    setTimeout(() => {
+                        this.grids.forEach(grid => {
+                            grid.addPill();
+                        });
+                    }, 4000);
+
+                    setTimeout(() => {
+                        this.addObject(new Alert(`Starting in 3...`, Alert.TYPE_INFO, this, 60));
+                    }, 1000);
+
+                    setTimeout(() => {
+                        this.addObject(new Alert(`Starting in 2...`, Alert.TYPE_INFO, this, 60));
+                    }, 2000)
+
+                    setTimeout(() => {
+                        this.addObject(new Alert(`Starting in 1...`, Alert.TYPE_INFO, this, 60));
+                    }, 3000)
+
+
+                    break;
+                case SocketMessage.TYPE_CONNECTION:
+                    this.clientConnected(message.client);
+                    break;
+                case SocketMessage.TYPE_PLAYER_KEY:
+
+                    break;
+                case SocketMessage.TYPE_PLAYER_KEY_UPDATE:
+                    this.grids.forEach(grid => {
+                        grid.handleEvent(message);
+                    })
+
+                    break;
+                case SocketMessage.TYPE_TICK:
+                    this.serverTick();
+                    break;
+                case SocketMessage.TYPE_PILL:
+                    this.grids.forEach(grid => {
+                        grid.addPills(message.data);
+                    })
+                    break;
+                case SocketMessage.TYPE_ALERT:
+                    this.addObject(new Alert(message.data.text, message.data.type, this));
+                    break;
+                case SocketMessage.TYPE_JOINED_ROOM:
+                    this.removeObject(this.roomInfo.id);
+                    this.roomInfoUpdated.text = `Room: ${message.data.roomName}`;
+                    this.room = message.data.roomName;
+                    this.addObject(this.roomInfoUpdated);
+                    this.playerInfo[0].text = `Player1 ${message.data.player === 1 ? '(You)' : ''}`;
+                    this.playerInfo[1].text = `Player2 ${message.data.player === 2 ? '(You)' : ''}`;
+
+                    this.addObject(this.playerInfo[0]);
+                    this.addObject(this.playerInfo[1]);
+
+                    this.addObject(this.playerPoints[0]);
+                    this.addObject(this.playerPoints[1]);
+                    break;
+                case SocketMessage.TYPE_POINTS_UPDATED:
+                    if (this.grids[0].client === message.data.players[0].id) {
+                        this.playerPoints[0].text = `points: ${message.data.players[0].points}`;
+                        this.playerPoints[1].text = `points: ${message.data.players[1].points}`;
+                    } else {
+                        this.playerPoints[0].text = `points: ${message.data.players[1].points}`;
+                        this.playerPoints[1].text = `points: ${message.data.players[0].points}`;
+                    }
+
+                    break;
+                case SocketMessage.TYPE_GAME_OVER:
+                    this.grids.forEach(grid => {
+                        grid.tiles = [];
+                        grid.pills = [];
+                    })
+
+                    this.addObject(new Alert('GAME OVER', Alert.TYPE_INFO, this));
+
+                    this.addObject(this.roomInfo);
+                    this.removeObject(this.roomInfoUpdated.id);
+                    this.removeObject(this.playerInfo[0].id);
+                    this.removeObject(this.playerInfo[1].id);
+                    break;
+                case SocketMessage.TYPE_PING:
+
+                    break;
+            }
+        }
     }
 
     fpsLoop(){
@@ -204,7 +369,9 @@ export class Engine {
         const roomName = prompt('Enter name of room:');
 
         if (roomName.length >= 3) {
-            this.ws.send(SocketMessage.send(SocketMessage.TYPE_CREATE_ROOM, {name: roomName}, this.client));
+            if (this.room === null) {
+                this.ws.send(SocketMessage.send(SocketMessage.TYPE_CREATE_ROOM, {name: roomName}, this.client));
+            }
         } else {
             alert('name must be longer than 3');
         }
