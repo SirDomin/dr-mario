@@ -31,6 +31,8 @@ export class Engine {
         this.lastLoop = new Date;
         this.loop = performance.now();
         this.ws = null;
+        this.ws = new WebSocket(`ws://${Options.SERVER_IP}`);
+        this.alerts = [];
         this.pingInterval = null;
         this.grids = [];
         this.onRunCallback = function(){ };
@@ -191,7 +193,6 @@ export class Engine {
                         grid.restart();
                     });
 
-                    this.room = null;
                     this.addObject(new Alert('GAME OVER', Alert.TYPE_INFO, this));
 
                     this.addObject(this.roomInfo);
