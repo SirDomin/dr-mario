@@ -1,4 +1,5 @@
 import {SocketMessage} from "../../src/modules/SocketMessage.mjs";
+import {Options} from "../../src/modules/Options.mjs";
 
 export class Room {
     clients;
@@ -31,6 +32,23 @@ export class Room {
             client: client.id,
             points: 0,
         });
+    }
+
+    startGame(pills) {
+        for (let x in this.clients) {
+            this.clients[x].send(SocketMessage.send(SocketMessage.TYPE_PILL, pills, this.clients[x].id));
+
+            this.clients[x].send(SocketMessage.send(SocketMessage.TYPE_GAME_START, {
+                players: this.clients.map(connection => connection.id),
+                player: x,
+            }, this.clients[x].id));
+        }
+
+        this.interval = setInterval(() => {
+            for (let x in this.clients) {
+                this.clients[x].send(SocketMessage.send(SocketMessage.TYPE_TICK, {}, this.clients[x].id));
+            }
+        }, 1000 / Options.FRAMERATE);
     }
 
     sendPointsToClients() {

@@ -35,6 +35,7 @@ export class GridArea {
         this.pills = [];
         this.serverTick = true;
         this.engine.addGrid(this);
+        this.previewPill = null;
     }
 
     setClient(client) {
@@ -45,6 +46,14 @@ export class GridArea {
         for (const x in data.pills) {
             this.pills.push([data.pills[x].color1, data.pills[x].color2]);
         }
+    }
+
+    restart() {
+        this.tiles = [];
+        this.pills = [];
+        this.pill = null;
+        this.indexesToRemove = [];
+        this.previewPill = null;
     }
 
     handleEvent(socketMessage) {

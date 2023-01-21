@@ -10,22 +10,7 @@ export class GameManager {
     }
 
     startGame(room) {
-        let pills = this.randomizePills();
-
-        for (let x in room.clients) {
-            room.clients[x].send(SocketMessage.send(SocketMessage.TYPE_PILL, pills, room.clients[x].id));
-
-            room.clients[x].send(SocketMessage.send(SocketMessage.TYPE_GAME_START, {
-                players: room.clients.map(connection => connection.id),
-                player: x,
-            }, room.clients[x].id));
-        }
-
-        room.interval = setInterval(() => {
-            for (let x in room.clients) {
-                room.clients[x].send(SocketMessage.send(SocketMessage.TYPE_TICK, {}, room.clients[x].id));
-            }
-        }, 1000 / Options.FRAMERATE);
+        room.startGame(this.randomizePills());
     }
 
     finishGame(room, clientId) {

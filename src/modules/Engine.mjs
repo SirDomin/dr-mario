@@ -18,7 +18,7 @@ export class Engine {
     ws;
     client;
 
-    constructor(canvas, ws) {
+    constructor(canvas) {
         this.canvas = canvas;
         this.eventHandler = new EventHandler(this.canvas, this);
         this.gameObjects = [];
@@ -30,6 +30,7 @@ export class Engine {
         this.frameTime = 0;
         this.lastLoop = new Date;
         this.loop = performance.now();
+        this.ws = null;
         this.ws = new WebSocket(`ws://${Options.SERVER_IP}`);
         this.alerts = [];
         this.pingInterval = null;
@@ -81,6 +82,7 @@ export class Engine {
     }
 
     setupSocketListener() {
+        this.ws = new WebSocket(`ws://${Options.SERVER_IP}`);
         this.ws.onerror = event => {
             this.addObject(new Alert(`could not connect to server`, Alert.TYPE_ERROR, this));
             this.room = null;
@@ -104,6 +106,7 @@ export class Engine {
         this.ws.onclose = event => {
             this.addObject(new Alert(`Disconnected from server!`, Alert.TYPE_ERROR, this));
             this.room = null;
+            this.client = null;
         }
 
         this.ws.onmessage = event => {
@@ -187,9 +190,8 @@ export class Engine {
                     break;
                 case SocketMessage.TYPE_GAME_OVER:
                     this.grids.forEach(grid => {
-                        grid.tiles = [];
-                        grid.pills = [];
-                    })
+                        grid.restart();
+                    });
 
                     this.addObject(new Alert('GAME OVER', Alert.TYPE_INFO, this));
 
