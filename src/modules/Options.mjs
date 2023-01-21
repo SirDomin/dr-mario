@@ -11,6 +11,10 @@ export class Options {
             engine.createRoom();
             delete engine.eventHandler.keysDown[76];
             engine.eventHandler.keyHandlers[76].handled = false
+        }, true);
+
+        engine.addKeyHandler(82, () => {
+            engine.setupSocketListener();
         }, true)
     }
 }
