@@ -15,7 +15,7 @@ const grids = [
     new GridArea(300, 150, engine),
 ];
 
-engine.setupSocketListener();
+// engine.setupSocketListener();
 engine.run();
 
 engine.addObject(fps);

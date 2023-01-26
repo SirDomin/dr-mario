@@ -31,7 +31,6 @@ export class Engine {
         this.lastLoop = new Date;
         this.loop = performance.now();
         this.ws = null;
-        this.ws = new WebSocket(`ws://${Options.SERVER_IP}`);
         this.alerts = [];
         this.pingInterval = null;
         this.grids = [];
@@ -40,8 +39,7 @@ export class Engine {
         this.playerPoints = [];
         this.room = null;
 
-        this.roomInfo = new StaticText(100, 50, 100, 10, `Press L to join or create a room!`, Color.GREEN)
-        this.roomInfoUpdated = new StaticText(100, 50, 100, 10, ``, Color.GREEN);
+        this.roomInfo = new StaticText(10, 50, 100, 10, `Press P to connect to server`, Color.GREEN)
 
         this.addObject(this.roomInfo);
     }
@@ -50,7 +48,6 @@ export class Engine {
         this.grids.push(grid);
         this.addObject(grid);
         if (this.grids.length === 2) {
-            this.setupSocketListener();
             this.prepareScoreBoards();
             Options.configureKeysForGrid(this, this.grids[0]);
         }
@@ -81,32 +78,29 @@ export class Engine {
         }, 2000);
     }
 
+    getIpFromClient() {
+        return prompt('Enter Server IP: ');
+    }
+
     setupSocketListener() {
-        this.ws = new WebSocket(`ws://${Options.SERVER_IP}`);
+        this.ws = new WebSocket(`ws://${this.getIpFromClient()}`);
         this.ws.onerror = event => {
             this.addObject(new Alert(`could not connect to server`, Alert.TYPE_ERROR, this));
             this.room = null;
-            setTimeout(() => {
-                const ip = prompt('Enter Server IP: ');
-
-                if (ip === null || ip === '') {
-                    return;
-                }
-
-                this.ws = new WebSocket(`ws://${ip}`);
-
-                this.setupSocketListener();
-            }, 1000);
+            this.client = null;
+            this.roomInfo.text = `Press P to connect to server`;
         }
 
         this.ws.onopen = event => {
             this.addObject(new Alert(`Connected to server!`, Alert.TYPE_SUCCESS, this));
+            this.roomInfo.text = `Press L to join or create a room!`;
         }
 
         this.ws.onclose = event => {
             this.addObject(new Alert(`Disconnected from server!`, Alert.TYPE_ERROR, this));
             this.room = null;
             this.client = null;
+            this.roomInfo.text = `Press P to connect to server`;
         }
 
         this.ws.onmessage = event => {
@@ -165,10 +159,8 @@ export class Engine {
                     this.addObject(new Alert(message.data.text, message.data.type, this));
                     break;
                 case SocketMessage.TYPE_JOINED_ROOM:
-                    this.removeObject(this.roomInfo.id);
-                    this.roomInfoUpdated.text = `Room: ${message.data.roomName}`;
+                    this.roomInfo.text = `Room: ${message.data.roomName}`;
                     this.room = message.data.roomName;
-                    this.addObject(this.roomInfoUpdated);
                     this.playerInfo[0].text = `Player1 ${message.data.player === 1 ? '(You)' : ''}`;
                     this.playerInfo[1].text = `Player2 ${message.data.player === 2 ? '(You)' : ''}`;
 
@@ -195,8 +187,7 @@ export class Engine {
 
                     this.addObject(new Alert('GAME OVER', Alert.TYPE_INFO, this));
 
-                    this.addObject(this.roomInfo);
-                    this.removeObject(this.roomInfoUpdated.id);
+                    this.roomInfo.text = `Press L to join or create a room!`;
                     this.removeObject(this.playerInfo[0].id);
                     this.removeObject(this.playerInfo[1].id);
                     break;
