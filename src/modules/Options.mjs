@@ -13,7 +13,9 @@ export class Options {
         }, true);
 
         engine.addKeyHandler(80, () => {
-            engine.setupSocketListener();
+            engine.setupSocketListener(true);
+            delete engine.eventHandler.keysDown[80];
+            engine.eventHandler.keyHandlers[80].handled = false
         }, true)
     }
 }

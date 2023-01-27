@@ -17,6 +17,7 @@ export class Engine {
     onRunCallback;
     ws;
     client;
+    serverIp;
 
     constructor(canvas) {
         this.canvas = canvas;
@@ -39,9 +40,18 @@ export class Engine {
         this.playerPoints = [];
         this.room = null;
 
+        this.serverIp = localStorage.getItem('serverIp') ?? null;
         this.roomInfo = new StaticText(10, 50, 100, 10, `Press P to connect to server`, Color.GREEN)
+        this.serverInfo = new StaticText(100, 25, 100, 10, `Server: ${this.serverIp}`, Color.GREEN);
+
+        if (this.serverIp) {
+            this.setupSocketListener();
+            this.roomInfo = new StaticText(10, 50, 100, 10, `Connected to ${this.serverIp}`, Color.GREEN)
+            this.serverInfo.text = `Server: ${this.serverIp}`
+        }
 
         this.addObject(this.roomInfo);
+        this.addObject(this.serverInfo);
     }
 
     addGrid(grid) {
@@ -79,20 +89,47 @@ export class Engine {
     }
 
     getIpFromClient() {
-        return prompt('Enter Server IP: ');
+        const ip = prompt('Enter Server IP: ');
+
+        if (!ip) return this.serverIp;
+
+        if (ip.length < 5) {
+            alert('Enter minimum 5 characters');
+            return this.getIpFromClient();
+        }
+
+        this.serverIp = ip;
+
+        return this.serverIp;
     }
 
-    setupSocketListener() {
-        this.ws = new WebSocket(`ws://${this.getIpFromClient()}`);
+    getServerIp() {
+        if (this.serverIp) {
+            return this.serverIp;
+        }
+
+        return this.getIpFromClient();
+    }
+
+    setupSocketListener(forcePrompt = false) {
+        if (forcePrompt === true) {
+            this.serverIp = null;
+        }
+        this.ws = new WebSocket(`ws://${this.getServerIp()}`);
         this.ws.onerror = event => {
             this.addObject(new Alert(`could not connect to server`, Alert.TYPE_ERROR, this));
             this.room = null;
             this.client = null;
             this.roomInfo.text = `Press P to connect to server`;
+            this.serverInfo.text = `Server: None`
+            localStorage.removeItem('serverIp');
         }
 
         this.ws.onopen = event => {
             this.addObject(new Alert(`Connected to server!`, Alert.TYPE_SUCCESS, this));
+            localStorage.setItem('serverIp', this.serverIp);
+            this.serverInfo.text = `Server: ${this.serverIp}`
+
             this.roomInfo.text = `Press L to join or create a room!`;
         }
 
@@ -101,6 +138,9 @@ export class Engine {
             this.room = null;
             this.client = null;
             this.roomInfo.text = `Press P to connect to server`;
+            this.serverInfo.text = `Server: None`
+            localStorage.removeItem('serverIp');
+
         }
 
         this.ws.onmessage = event => {
@@ -188,6 +228,7 @@ export class Engine {
                     this.addObject(new Alert('GAME OVER', Alert.TYPE_INFO, this));
 
                     this.roomInfo.text = `Press L to join or create a room!`;
+
                     this.removeObject(this.playerInfo[0].id);
                     this.removeObject(this.playerInfo[1].id);
                     break;
@@ -359,12 +400,16 @@ export class Engine {
     }
 
     createRoom() {
+        if (this.room !== null) {
+            if (!confirm('Exit current room?')) {
+                return;
+            }
+        }
+
         const roomName = prompt('Enter name of room:');
 
         if (roomName.length >= 3) {
-            if (this.room === null) {
-                this.ws.send(SocketMessage.send(SocketMessage.TYPE_CREATE_ROOM, {name: roomName}, this.client));
-            }
+            this.ws.send(SocketMessage.send(SocketMessage.TYPE_CREATE_ROOM, {name: roomName}, this.client));
         } else {
             alert('name must be longer than 3');
         }
