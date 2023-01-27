@@ -67,22 +67,24 @@ export class GridArea {
             return;
         }
 
-        switch(data.code) {
-            case 39:
-                this.movePillRight();
-            break;
-            case 37:
-                this.movePillLeft();
-            break;
-            case 89:
-                this.rotatePillRight();
-            break;
-            case 84:
-                this.rotatePillLeft();
-            break;
-            case 32:
-                this.placeBlock();
-            break;
+        if (this.pill) {
+            switch(data.code) {
+                case 39:
+                    this.movePillRight();
+                    break;
+                case 37:
+                    this.movePillLeft();
+                    break;
+                case 89:
+                    this.rotatePillRight();
+                    break;
+                case 84:
+                    this.rotatePillLeft();
+                    break;
+                case 32:
+                    this.placeBlock();
+                    break;
+            }
         }
     }
 
