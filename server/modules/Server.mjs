@@ -4,6 +4,7 @@ import {RoomManager} from "./RoomManager.mjs";
 import {SocketMessage} from "../../src/modules/SocketMessage.mjs";
 import {Alert} from "../../src/modules/objects/Alert.mjs";
 import {GameManager} from "./GameManager.mjs";
+import {Config} from "../../config/config.mjs";
 
 export class Server {
     websocketServer;
@@ -14,7 +15,8 @@ export class Server {
 
     constructor() {
         this.clientManager = new ClientManager();
-        this.websocketServer = new WebSocketServer({ port: 8080 });
+        this.websocketServer = new WebSocketServer({ port: Config.port });
+        console.log(this.websocketServer.address());
         this.roomManager = new RoomManager();
         this.gameManager = new GameManager(this);
     }
@@ -28,34 +30,49 @@ export class Server {
 
     createSocketListener() {
         this.websocketServer.on('connection', function connection(ws, req) {
+            const clientIpAddress = req.connection.remoteAddress;
+            console.log(`New WebSocket connection from IP address: ${clientIpAddress}`);
             ws.on('message', function message(data) {
                 let message = SocketMessage.read(data);
                 switch (message.type) {
                     case SocketMessage.TYPE_GAME_START:
+                        this.dispatchGameStart(message);
 
                         break;
-                    case SocketMessage.TYPE_CONNECTION:
 
+                    case SocketMessage.TYPE_CONNECTION:
                         break;
 
                     case SocketMessage.TYPE_PLAYER_KEY:
                         this.handleKeyPressed(message);
+
                         break;
+
                     case SocketMessage.TYPE_OUT_OF_PILLS:
                         this.gameManager.emitPills(message);
+
                         break;
-                    case SocketMessage.TYPE_CREATE_ROOM:
+
+                    case SocketMessage.TYPE_CREATE_OR_JOIN_ROOM:
                         this.connectToRoom(message);
+                        this.dispatchRoomState(message);
+
                         break;
+
                     case SocketMessage.TYPE_POINTS_UPDATED:
                         this.handlePointsUpdated(message);
+
                         break;
+
                     case SocketMessage.TYPE_GAME_OVER:
                         this.handleGameOver(message);
+
                         break;
+
                     case SocketMessage.TYPE_PING:
                         this.clientManager.handlePing(message);
-                    break;
+
+                        break;
                 }
             }.bind(this));
 
@@ -118,15 +135,6 @@ export class Server {
 
 
         } else {
-            if (room.finished === true) {
-                client.send(SocketMessage.send(SocketMessage.TYPE_ALERT, {
-                    text: `Room ${roomName} is already finished`,
-                    type: Alert.TYPE_ERROR,
-                }, client.id));
-
-                return;
-            }
-
             if (room.isRoomFull()) {
                 client.send(SocketMessage.send(SocketMessage.TYPE_ALERT, {
                     text: `Room ${roomName} is full!`,
@@ -139,6 +147,7 @@ export class Server {
             client.send(SocketMessage.send(SocketMessage.TYPE_ALERT, {
                 text: `joined room named ${roomName}`,
                 type: Alert.TYPE_SUCCESS,
+                data: 'Some data',
             }, client.id));
         }
 
@@ -149,21 +158,53 @@ export class Server {
             player: room.clients.length,
         }, client.id));
 
-        if (room.isRoomFull()) {
-            this.gameManager.startGame(room);
+        console.log('Room list', this.roomManager.rooms);
+    }
 
-            room.emitToClients(SocketMessage.TYPE_POINTS_UPDATED, {
+    dispatchRoomState(message) {
+        const roomName = message.data.name;
+        let room = this.roomManager.getRoomByName(roomName);
+
+        if (room.isReadyToStart()) {
+            room.emitToClients(SocketMessage.TYPE_GAME_READY, {
+                // definitely we don't need this code below
                 players: [
                     {
                         id: room.clients[0].id,
                         points: room.getPointsForClient(room.clients[0].id),
+                        playerName: room.clients[0].playerName,
                     },
                     {
                         id: room.clients[1].id,
                         points: room.getPointsForClient(room.clients[1].id),
+                        playerName: room.clients[1].playerName,
                     }
                 ]
             })
         }
+    }
+
+    dispatchGameStart(message) {
+        const player = this.clientManager.getClientById(message.client);
+        let room = this.roomManager.getRoomByPlayerUuid(player.id);
+
+        if (!room || !room.isReadyToStart()) {
+            return;
+        }
+
+        this.gameManager.startGame(room);
+
+        room.emitToClients(SocketMessage.TYPE_POINTS_UPDATED, {
+            players: [
+                {
+                    id: room.clients[0].id,
+                    points: room.getPointsForClient(room.clients[0].id),
+                },
+                {
+                    id: room.clients[1].id,
+                    points: room.getPointsForClient(room.clients[1].id),
+                }
+            ]
+        })
     }
 }
