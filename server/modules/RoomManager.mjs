@@ -23,6 +23,10 @@ export class RoomManager {
         return room.length ? room[0] : null;
     }
 
+    getRoomByPlayerUuid(uuid) {
+        return this.rooms.filter(room => room.clients.filter(client => client.id === uuid).length > 0)[0];
+    }
+
     removeRoom() {
 
     }
