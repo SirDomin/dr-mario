@@ -70,9 +70,11 @@ export class GridArea {
         if (this.pill) {
             switch(data.code) {
                 case 39:
+                case 68:
                     this.movePillRight();
                     break;
                 case 37:
+                case 65:
                     this.movePillLeft();
                     break;
                 case 89:
@@ -82,6 +84,7 @@ export class GridArea {
                     this.rotatePillLeft();
                     break;
                 case 32:
+                case 83:
                     this.placeBlock();
                     break;
             }
