@@ -1,12 +1,13 @@
 export class SocketMessage {
     static TYPE_CONNECTION = 'CONNECTION';
+    static TYPE_GAME_READY = 'READY';
     static TYPE_GAME_START = 'GAME_START';
     static TYPE_PLAYER_KEY = 'PLAYER_KEY';
     static TYPE_PLAYER_KEY_UPDATE = 'PLAYER_KEY_UPDATE';
     static TYPE_TICK = 'TICK';
     static TYPE_PILL = 'PILL';
     static TYPE_OUT_OF_PILLS = 'OUT_OF_PILLS';
-    static TYPE_CREATE_ROOM = 'CREATE_ROOM';
+    static TYPE_CREATE_OR_JOIN_ROOM = 'CREATE_OR_JOIN_ROOM';
     static TYPE_ROOM_CREATED = 'ROOM_CREATED';
     static TYPE_JOINED_ROOM = 'JOINED_ROOM';
     static TYPE_ALERT = 'ALERT';
