@@ -22,14 +22,6 @@ export class ClientManager {
 
         client.send(SocketMessage.send(SocketMessage.TYPE_CONNECTION, `connected with id: ${client.id}`, client.id));
 
-        client.pingInterval = setInterval(() => {
-            if (client.isAlive === false) {
-                this.removeClient(client);
-                clearInterval(client.pingInterval);
-            }
-            client.isAlive = false;
-        }, 3000)
-
         console.log(`client with id ${client.id} connected`);
     }
 
