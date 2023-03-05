@@ -16,6 +16,12 @@ export class Options {
             engine.setupSocketListener(true);
             delete engine.eventHandler.keysDown[80];
             engine.eventHandler.keyHandlers[80].handled = false
-        }, true)
+        }, true);
+
+        engine.addKeyHandler(13, () => {
+            engine.startGame();
+            delete engine.eventHandler.keysDown[80];
+            engine.eventHandler.keyHandlers[80].handled = false
+        }, true);
     }
 }
